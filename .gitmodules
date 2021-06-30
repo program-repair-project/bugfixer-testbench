@@ -1,0 +1,6 @@
+[submodule "ManyBugs"]
+	path = ManyBugs
+	url = https://github.com/squaresLab/ManyBugs.git
+[submodule "bug-localizer"]
+	path = bug-localizer
+	url = https://github.com/program-repair-project/bug-localizer.git
