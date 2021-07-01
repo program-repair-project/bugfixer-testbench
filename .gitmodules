@@ -4,3 +4,6 @@
 [submodule "bug-localizer"]
 	path = bug-localizer
 	url = git@github.com:program-repair-project/bug-localizer.git
+[submodule "patch-synthesizer"]
+	path = patch-synthesizer
+	url = git@github.com:program-repair-project/patch-synthesizer.git

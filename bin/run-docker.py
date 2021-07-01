@@ -12,6 +12,8 @@ import json
 PROJECT_HOME = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 LOCALIZER_HOME = os.path.join(PROJECT_HOME, "bug-localizer")
 LOCALIZER_BIN_DIR = os.path.join(LOCALIZER_HOME, "_build/default/src")
+SYNTHESIZER_HOME = os.path.join(PROJECT_HOME, "patch-synthesizer")
+SYNTHESIZER_BIN_DIR = os.path.join(SYNTHESIZER_HOME, "_build/default/src")
 MANYBUGS_HOME = os.path.join(PROJECT_HOME, "ManyBugs")
 
 DOCKER_IN_DIR = '/bugfixer'
@@ -54,7 +56,9 @@ def run_docker(args, program, bug_id):
     cmd = [
         'docker', 'run', '-it', '-v',
         "{}:{}".format(LOCALIZER_BIN_DIR,
-                       os.path.join(DOCKER_IN_DIR, 'localizer')), '--mount',
+                       os.path.join(DOCKER_IN_DIR, 'localizer')), '-v',
+        "{}:{}".format(SYNTHESIZER_BIN_DIR,
+                       os.path.join(DOCKER_IN_DIR, 'synthesizer')), '--mount',
         'type=bind,source={},destination={}'.format(
             bug_desc_file, os.path.join(DOCKER_IN_DIR, 'bug_desc.json'))
     ]
