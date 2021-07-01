@@ -11,7 +11,7 @@ import json
 
 PROJECT_HOME = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 LOCALIZER_HOME = os.path.join(PROJECT_HOME, "bug-localizer")
-LOCALIZER_BIN = os.path.join(LOCALIZER_HOME, "_build/default/src/main.exe")
+LOCALIZER_BIN_DIR = os.path.join(LOCALIZER_HOME, "_build/default/src")
 MANYBUGS_HOME = os.path.join(PROJECT_HOME, "ManyBugs")
 
 DOCKER_IN_DIR = '/bugfixer'
@@ -52,10 +52,10 @@ def preprocess_bug_desc(program, bug_id):
 
 def run_docker(args, program, bug_id):
     cmd = [
-        'docker', 'run', '-it',
-        '-v', "{}:{}".format(LOCALIZER_BIN,
-                             os.path.join(DOCKER_IN_DIR, 'localizer')),
-        '--mount', 'type=bind,source={},destination={}'.format(
+        'docker', 'run', '-it', '-v',
+        "{}:{}".format(LOCALIZER_BIN_DIR,
+                       os.path.join(DOCKER_IN_DIR, 'localizer')), '--mount',
+        'type=bind,source={},destination={}'.format(
             bug_desc_file, os.path.join(DOCKER_IN_DIR, 'bug_desc.json'))
     ]
     if args.rm:
