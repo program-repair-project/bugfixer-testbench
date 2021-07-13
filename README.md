@@ -1,9 +1,15 @@
 # bugfixer-testbench
 
 ## Installation
-0. Checkout
+0. Checkout & build
 ```
 git clone --recursive https://github.com/program-repair-project/bugfixer-testbench.git
+make
+```
+Currently `make` only builds `bug-localizer`.
+Ignore warnings like
+```
+warning: Using 'getservbyport' in statically linked applications requires at runtime the shared libraries from the glibc version used for linking
 ```
 
 1. Install [Bugzoo](https://github.com/squaresLab/BugZoo)
