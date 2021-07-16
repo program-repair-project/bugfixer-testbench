@@ -64,6 +64,8 @@ def run_docker(args, program, bug_id):
     ]
     if args.rm:
         cmd.append('--rm')
+    if args.detached:
+        cmd.append('-d')
     cmd += ['squareslab/manybugs:{}-{}'.format(program, bug_id), '/bin/bash']
     subprocess.run(cmd)
 
@@ -72,6 +74,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--rm', action='store_true')
     parser.add_argument('target', type=str)
+    parser.add_argument('-d', action='store_true', dest='detached')
     args = parser.parse_args()
     initialize()
     program = args.target.split('-')[0]
