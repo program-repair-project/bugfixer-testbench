@@ -3,11 +3,14 @@
 import argparse
 import subprocess
 import os
+import logging
 
-PATH = os.getcwd()
-RUN_DOCKER_SCRIPT = os.path.join(PATH, 'bin/run-docker.py')
-OUT_DIR = os.path.join(PATH, 'localizer-outs')
+PROJECT_HOME = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+RUN_DOCKER_SCRIPT = os.path.join(PROJECT_HOME, 'bin/run-docker.py')
+OUT_DIR = os.path.join(PROJECT_HOME, 'localizer-outs')
 bug_dict = {}
+
+logging.basicConfig(level=logging.INFO, format="[%(asctime)s] %(levelname)s [%(name)s.%(funcName)s:%(lineno)d] %(message)s", datefmt="%H:%M:%S")
 
 def init():
     if not os.path.isdir(OUT_DIR):
@@ -25,11 +28,11 @@ def init():
 
 def build_one(project, case):
     if bug_dict[project][case] == 'Yes':
-        print(f'{project}:{case} is already installed. Skip')
+        logging.info(f'{project}:{case} is already installed. Skip')
     else:
         build_process = subprocess.run(['bugzoo', 'bug', 'build', f'manybugs:{project}:{case}'])
         build_process.check_returncode()
-        print(f'[{project}:{case}] Succesfully installed.')
+        logging.info(f'{project}:{case} is successfully installed')
 
 def build(project, case):
     if project:
@@ -57,23 +60,34 @@ def run_one_localizer(project, case):
             docker_id = container_id
             break
     if not docker_id:
-        print('Cannot find container_id')
+        logging.error(f'Cannot find container_id of {project}:{case}')
         return
     # TODO: -skip_compile
     localizer_cmd = ['docker', 'exec', '-it', f'{docker_id}', '/bugfixer/localizer/main.exe', '/experiment']
     localizer = subprocess.run(localizer_cmd)
-    # TODO: use logger
-    print(f'[{project}:{case}] localizer return_code: {localizer.returncode}')
     try:
         localizer.check_returncode()
     except subprocess.CalledProcessError:
+        logging.error(f'{project}:{case} localizer execution failure')
         return
     cp_cmd = ['docker', 'cp', f'{docker_id}:/experiment/localizer-out', f'{OUT_DIR}/{project}:{case}']
     run_cp = subprocess.run(cp_cmd)
     try:
         run_cp.check_returncode()
     except subprocess.CalledProcessError:
-        print('[{project}:{case}] localizer executed successfully, but docker cp returns non-zero code')
+        logging.error(f'{project}:{case} localizer executed successfully, but docker cp returns non-zero code')
+    stop_cmd = ['docker', 'stop', f'{docker_id}']
+    stop = subprocess.run(stop_cmd)
+    try:
+        stop.check_returncode()
+    except subprocess.CalledProcessError:
+        logging.error(f'Cannot stop docker container of {project}:{case}')
+    rm_cmd = ['docker', 'rm', f'{docker_id}']
+    rm = subprocess.run(rm_cmd)
+    try:
+        rm.check_returncode()
+    except subprocess.CalledProcessError:
+        logging.error(f'Cannot remove docker continer of {project}:{case}')
 
 def run_localizer(project, case):
     if project:
