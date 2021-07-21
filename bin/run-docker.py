@@ -22,12 +22,15 @@ logging.basicConfig(level=logging.INFO, \
                     format="[%(asctime)s] %(levelname)s [%(name)s.%(funcName)s:%(lineno)d] %(message)s", \
                     datefmt="%H:%M:%S")
 
-timestamp = datetime.today().strftime('%Y%m%d-%H:%M:%S')
-out_dir = os.path.join('bugfixer-out', timestamp)
-bug_desc_file = os.path.join(PROJECT_HOME, out_dir, 'bug_desc.json')
 
-
-def initialize():
+def initialize(args):
+    global bug_desc_file
+    if args.timestamp:
+        timestamp = args.timetamp
+    else:
+        timestamp = datetime.today().strftime('%Y%m%d-%H:%M:%S')
+    out_dir = os.path.join('bugfixer-out', timestamp)
+    bug_desc_file = os.path.join(PROJECT_HOME, out_dir, 'bug_desc.json')
     os.makedirs(out_dir)
 
 
@@ -73,10 +76,11 @@ def run_docker(args, program, bug_id):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--rm', action='store_true')
-    parser.add_argument('target', type=str)
     parser.add_argument('-d', action='store_true', dest='detached')
+    parser.add_argument('--timestamp', type=str)
+    parser.add_argument('target', type=str)
     args = parser.parse_args()
-    initialize()
+    initialize(args)
     program = args.target.split('-')[0]
     bug_id = args.target[len(program) + 1:]
     preprocess_bug_desc(program, bug_id)
