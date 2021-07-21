@@ -26,7 +26,15 @@ fi
 
 eval $(SHELL=bash opam config env --switch=$SPARROW_OPAM_SWITCH)
 
+# build bug-localizer
 opam pin add cil https://github.com/prosyslab/cil.git -n
 opam install -j $NCPU dune batteries cil ppx_compare ocamlformat merlin yojson xmlm
 
 make
+
+# build sparrow
+pushd sparrow
+opam pin add . -n
+opam install -j $NCPU sparrow --deps-only
+opam pin remove sparrow
+popd

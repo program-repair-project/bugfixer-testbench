@@ -7,3 +7,6 @@
 [submodule "patch-synthesizer"]
 	path = patch-synthesizer
 	url = git@github.com:program-repair-project/patch-synthesizer.git
+[submodule "sparrow"]
+	path = sparrow
+	url = git@github.com:prosyslab/sparrow-incubator.git
