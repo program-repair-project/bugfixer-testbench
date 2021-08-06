@@ -9,7 +9,7 @@ from datetime import datetime
 PROJECT_HOME = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 RUN_DOCKER_SCRIPT = os.path.join(PROJECT_HOME, 'bin/run-docker.py')
 OUT_DIR = os.path.join(PROJECT_HOME, 'localizer-outs')
-ENGINE_LIST = ('tarantula', 'prophet')
+ENGINE_LIST = ('tarantula', 'prophet', 'ochiai', 'jaccard')
 bug_dict = {}
 timestamp = ''
 
