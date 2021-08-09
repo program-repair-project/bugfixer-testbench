@@ -122,10 +122,12 @@ def run_one_localizer(project, case, engine):
         logging.error(f'Cannot find container_id of {project}:{case}')
         return
     # TODO: -skip_compile
+    options = localizer_options[
+        project] if project in localizer_options else []
     localizer_cmd = [
         'docker', 'exec', '-it', f'{docker_id}',
         '/bugfixer/localizer/main.exe', '-engine', engine
-    ] + localizer_options[project] + ['/experiment']
+    ] + options + ['/experiment']
     localizer = subprocess.run(localizer_cmd)
     try:
         localizer.check_returncode()
