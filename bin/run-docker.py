@@ -36,8 +36,8 @@ def initialize(args):
 
 def find_bug_desc(bugzoo, program, bug_id):
     for item in bugzoo:
-        print(item)
         if item['name'] == 'manybugs:{}:{}'.format(program, bug_id):
+            print(item)
             return item
 
     return None
