@@ -44,3 +44,21 @@ Option `-skip_compile` will skip recompilation.
 ```
 /bugfixer/localizer/main.exe -skip_compile . 
 ```
+
+## Run the bug localizer with script
+Instead of directcly running the bug localizer inside the docker, you can run the bug localizer in the root directory of this repository with the script, "test-localization.py".
+
+
+You can configure the localization execution with the three options.
+
+```-p``` is for the project of the target bug. Default will run all the projects.
+
+```-c``` is for the case ID of the target bug. Default will run all the cases in the given project.
+
+```-e``` is for the engine, the localization algorithm, to localize the fault.
+
+For example, you can run
+```
+yourWorkingDirectory/bugfixer-testbench/bin/test_localization.py -p gzip -c 2009-09-26-a1d3d4019d-f17cbd13a1 -e prophet
+```
+to run bug localizer on bug case "2009-09-26-a1d3d4019d-f17cbd13a1" in project "gzip" with the engine "prophet".
