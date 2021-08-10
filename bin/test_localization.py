@@ -100,7 +100,16 @@ def build_one(project, case):
     return True
 
 
-localizer_options = {"lighttpd": ["-blacklist", "configparser.c", "-j", "1"]}
+localizer_options = {
+    "lighttpd": ["-blacklist", "configparser.c", "-j", "1"],
+    "gmp": [
+        "-blacklist", "gen-jacobitab.c", "-blacklist", "gen-fib.c",
+        "-blacklist", "gen-trialdivtab.c", "-blacklist", "gen-fac_ui.c",
+        "-blacklist", "gen-psqr.c", "-blacklist", "gen-bases.c", "-blacklist",
+        "dumbmp.c", "-gnu_source"
+    ],
+    "php": ["-gnu_source"]
+}
 
 
 def run_one_localizer(project, case, engine):
