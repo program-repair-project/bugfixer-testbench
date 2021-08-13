@@ -304,16 +304,14 @@ def build_and_run(args):
                 if engine:
                     run_one_localizer(project, case, engine)
                 else:
-                    for engine in ENGINE_LIST:
-                        run_one_localizer(project, case, engine)
+                    run_one_localizer(project, case, 'all')
         else:
             for case in bug_dict[project]:
                 if build_one(project, case):
                     if engine:
                         run_one_localizer(project, case, engine)
                     else:
-                        for engine in ENGINE_LIST:
-                            run_one_localizer(project, case, engine)
+                        run_one_localizer(project, case, 'all')
     else:
         for project in bug_dict:
             for case in bug_dict[project]:
@@ -321,8 +319,7 @@ def build_and_run(args):
                     if engine:
                         run_one_localizer(project, case, engine)
                     else:
-                        for engine in ENGINE_LIST:
-                            run_one_localizer(project, case, engine)
+                        run_one_localizer(project, case, 'all')
 
 
 def main():
