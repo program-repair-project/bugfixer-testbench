@@ -31,7 +31,7 @@ def initialize(args):
         timestamp = datetime.today().strftime('%Y%m%d-%H:%M:%S')
     out_dir = os.path.join('bugfixer-out', timestamp)
     bug_desc_file = os.path.join(PROJECT_HOME, out_dir, 'bug_desc.json')
-    os.makedirs(out_dir)
+    os.makedirs(out_dir, exist_ok=True)
 
 
 def find_bug_desc(bugzoo, program, bug_id):
@@ -69,7 +69,7 @@ def run_docker(args, program, bug_id):
         cmd.append('--rm')
     if args.detached:
         cmd.append('-d')
-    cmd += ['squareslab/manybugs:{}-{}'.format(program, bug_id), '/bin/bash']
+    cmd += ['prosyslab/manybugs:{}-{}'.format(program, bug_id), '/bin/bash']
     subprocess.run(cmd)
 
 

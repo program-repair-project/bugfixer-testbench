@@ -51,35 +51,49 @@ def init(args):
         timestamp = args.timestamp
     else:
         timestamp = datetime.today().strftime('%Y%m%d-%H:%M:%S')
-    bugzoo_process = subprocess.run(['bugzoo', 'bug', 'list'],
-                                    capture_output=True,
-                                    text=True)
-    bugzoo_process.check_returncode()
-    bug_list = bugzoo_process.stdout.split('\n')[3:-2]
-    for bug in bug_list:
-        _, case, _, _, _, installed, _ = list(
-            map(lambda s: s.strip(), bug.split('|')))
-        case = case.split(':')
-        if case[2] in except_case_list:
+
+    if not (args.case):
+        docker_pull_ps = subprocess.run(
+            ['docker', 'pull', '-a', 'prosyslab/manybugs'])
+        docker_pull_ps.check_returncode()
+
+    docker_list_process = subprocess.run(['docker', 'images'],
+                                         capture_output=True,
+                                         text=True)
+    docker_list_process.check_returncode()
+    entire_docker_list = docker_list_process.stdout.split('\n')
+
+    tag_start_idx = entire_docker_list[0].find('TAG')
+    tag_end_idx = entire_docker_list[0].find('IMAGE')
+
+    for docker in entire_docker_list:
+        repo = docker[0:tag_start_idx].strip()
+        if repo != "prosyslab/manybugs":
             continue
-        if case[1] in bug_dict:
-            bug_dict[case[1]][case[2]] = installed
+        tag = docker[tag_start_idx:tag_end_idx].strip()
+        project = tag.split('-')[0]
+        case = tag[len(project) + 1:]
+        if case in except_case_list:
+            continue
+        if project in bug_dict:
+            bug_dict[project].append(case)
         else:
-            bug_dict[case[1]] = {case[2]: installed}
+            bug_dict[project] = [case]
 
 
 def build_one(project, case):
-    if bug_dict[project][case] == 'Yes':
-        logging.info(f'{project}:{case} is already installed. Skip')
+    if project in bug_dict and case in bug_dict[project]:
+        logging.info(f'{project}-{case} is already installed. Skip')
     else:
-        build_process = subprocess.run(
-            ['bugzoo', 'bug', 'build', f'manybugs:{project}:{case}'])
+        pull_process = subprocess.run(
+            ['docker', 'pull', f'prosyslab/manybugs:{project}-{case}'])
         try:
-            build_process.check_returncode()
+            pull_process.check_returncode()
         except subprocess.CalledProcessError:
-            logging.error(f'{project}:{case} is already installed. Skip')
+            logging.error(
+                f'error occurred while pulling {project}-{case}. Skip')
             return False
-        logging.info(f'{project}:{case} is successfully installed')
+        logging.info(f'{project}-{case} is successfully pulled')
     return True
 
 
@@ -247,7 +261,7 @@ def run_one_localizer(project, case, engine):
     docker_id = None
     for d in dockers:
         container_id, image = d.split()[:2]
-        if image == f'squareslab/manybugs:{project}-{case}':
+        if image == f'prosyslab/manybugs:{project}-{case}':
             docker_id = container_id
             break
     if not docker_id:
