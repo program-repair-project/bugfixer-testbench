@@ -272,6 +272,23 @@ def run_one_localizer(project, case, engine):
         project] if project in localizer_options else []
     if project == "php":
         options.extend(php_blacklists[case])
+        print(os.getcwd())
+        script_copy_cmd = [
+            'docker', 'cp', './bin/php_script.sh', f'{docker_id}:/experiment'
+        ]
+        script_copy = subprocess.run(script_copy_cmd)
+        try:
+            script_copy.check_returncode()
+        except subprocess.CalledProcessError:
+            logging.error(f'{project}:{case} script copy failure')
+        script_run_cmd = [
+            'docker', 'exec', f'{docker_id}', '/experiment/php_script.sh'
+        ]
+        script_run = subprocess.run(script_run_cmd)
+        try:
+            script_run.check_returncode()
+        except subprocess.CalledProcessError:
+            logging.error(f'{project}:{case} script run failure')
     localizer_cmd = [
         'docker', 'exec', '-it', f'{docker_id}',
         '/bugfixer/localizer/main.exe', '-engine', engine
