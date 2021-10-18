@@ -6,6 +6,7 @@ cd /experiment
 git clone https://gitlab.com/libtiff/libtiff.git
 cd libtiff
 git checkout $MANYBUG_HASH
+./configure
 cp -rf /experiment/test mytest
 
 while true; do
