@@ -74,7 +74,16 @@ def run_docker(args, program, bug_id):
         cmd.append('--rm')
     if args.detached:
         cmd.append('-d')
-    cmd += ['prosyslab/manybugs:{}-{}'.format(program, bug_id), '/bin/bash']
+
+    if args.bic:
+        cmd += [
+            'prosyslab/manybugs-differential:{}-{}'.format(program, bug_id),
+            '/bin/bash'
+        ]
+    else:
+        cmd += [
+            'prosyslab/manybugs:{}-{}'.format(program, bug_id), '/bin/bash'
+        ]
     subprocess.run(cmd)
 
 
@@ -83,6 +92,7 @@ def main():
     parser.add_argument('--rm', action='store_true')
     parser.add_argument('-d', action='store_true', dest='detached')
     parser.add_argument('--timestamp', type=str)
+    parser.add_argument('--bic', type=str)
     parser.add_argument('target', type=str)
     args = parser.parse_args()
     initialize(args)
