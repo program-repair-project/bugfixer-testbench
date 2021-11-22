@@ -92,7 +92,7 @@ def main():
     parser.add_argument('--rm', action='store_true')
     parser.add_argument('-d', action='store_true', dest='detached')
     parser.add_argument('--timestamp', type=str)
-    parser.add_argument('--bic', type=str)
+    parser.add_argument('--bic', action='store_true')
     parser.add_argument('target', type=str)
     args = parser.parse_args()
     initialize(args)
