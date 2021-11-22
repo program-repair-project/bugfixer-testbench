@@ -3,3 +3,8 @@ Pipfile*
 localizer-outs
 a.out
 sparrow-out
+*.dot
+*.svg
+.visualizer-history.txt
+coverage.csv
+.history.txt
