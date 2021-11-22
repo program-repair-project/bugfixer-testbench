@@ -13,3 +13,6 @@
 [submodule "bingo"]
 	path = bingo
 	url = git@github.com:prosyslab/bingo.git
+[submodule "smake"]
+	path = smake
+	url = git@github.com:prosyslab/smake.git
