@@ -18,9 +18,13 @@ MAX_INSTANCE_NUM = 15
 timestamp = ''
 
 
-def init():
+def init(args):
     global timestamp
-    timestamp = datetime.today().strftime('%Y%m%d-%H:%M:%S')
+
+    if args.timestamp:
+        timestamp = args.timestamp
+    else:
+        timestamp = datetime.today().strftime('%Y%m%d-%H:%M:%S')
 
 
 def run_cmd(cmd_str):
@@ -160,7 +164,7 @@ def main():
     parser.add_argument('--skip_smake', action='store_true', default=False)
     args = parser.parse_args()
 
-    init()
+    init(args)
 
     if args.project == "all":
         projects = PROJECT_LIST
