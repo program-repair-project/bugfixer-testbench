@@ -2,7 +2,6 @@
 
 PROJECT_HOME="$(cd "$(dirname "${BASH_SOURCE[0]}")" && cd ../ && pwd)"
 SPARROW_HOME=$PROJECT_HOME/sparrow
-export PYTHONHASHSEED=0
 
 if [[ $1 == "clean" ]]; then
   echo "clean"
