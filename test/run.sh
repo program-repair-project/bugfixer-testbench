@@ -18,4 +18,4 @@ popd
 
 cp coverage.txt line-matching.json bic/sparrow-out/
 
-$PROJECT_HOME/bingo/bin/blazer -default_prob 0.5 -parent_dir parent/sparrow-out bic/sparrow-out
+$PROJECT_HOME/bingo/bin/blazer -default_edb_prob 0.5 -parent_dir parent/sparrow-out bic/sparrow-out
