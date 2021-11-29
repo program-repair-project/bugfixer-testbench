@@ -99,10 +99,10 @@ def run_smake(works):
 
         cmd = [
             "docker", "exec", "-it", container, "/experiment/run_smake.sh",
-            project
+            project, case
         ]
-        run_sparrow = subprocess.Popen(cmd, stdout=subprocess.PIPE)
-        PROCS.append(run_sparrow)
+        run_smake = subprocess.Popen(cmd)
+        PROCS.append(run_smake)
     for proc in PROCS:
         proc.communicate()
 
@@ -146,7 +146,7 @@ def run_sparrow(works):
             os.makedirs(sparrow_outpath, exist_ok=True)
             cmd = [
                 SPARROW_PATH, "-frontend", "clang",
-                "-extract_datalog_fact_full_no_opt", "-outdir", sparrow_outpath
+                "-extract_datalog_fact_full_no_opt_dag", "-outdir", sparrow_outpath
             ] + target_files
 
             run_sparrow = subprocess.Popen(cmd, stdout=subprocess.PIPE)
