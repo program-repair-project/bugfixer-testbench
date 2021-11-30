@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 
 import argparse
-from datetime import datetime
+import datetime
+import time
 import logging
 import os
 import subprocess
@@ -20,27 +21,31 @@ logging.basicConfig(level=logging.INFO, \
                     filename=os.path.join(PROJECT_HOME, 'run-blazer.log'))
 
 
-def run_blazer(args, project, case):
+def run_blazer(args, timestamp, project, case):
     cmd = [
-        BLAZER_BIN, '-default_edb_prob', args.default_edb_prob, '-parent_dir',
+        BLAZER_BIN, '-timestamp', timestamp, '-default_edb_prob',
+        args.default_edb_prob, '-parent_dir',
         os.path.join(OUTPUT_DIR, project, case, 'parent', 'sparrow-out'),
         os.path.join(OUTPUT_DIR, project, case, 'bic', 'sparrow-out')
     ]
     logging.info("Cmd: {}".format(" ".join(cmd)))
-    subprocess.run(cmd)
+    subprocess.run(cmd, stdout=subprocess.DEVNULL)
 
 
 def run(args):
+    timestamp = datetime.datetime.now().strftime('%Y%m%d-%H:%M:%S')
+    print("Timestamp: " + timestamp)
+    logging.info("Timestamp: " + timestamp)
     if args.project == "all":
         for project in benchmark.benchmark:
             for case in benchmark.benchmark[project]:
-                run_blazer(args, project, case)
+                run_blazer(args, timestamp, project, case)
     elif args.project in benchmark.benchmark and args.case == None:
         for case in benchmark.benchmark[args.project]:
-            run_blazer(args, args.project, case)
+            run_blazer(args, timestamp, args.project, case)
     elif args.project in benchmark.benchmark and args.case in benchmark.benchmark[
             args.project]:
-        run_blazer(args, args.project, args.case)
+        run_blazer(args, timestamp, args.project, args.case)
     else:
         print('Unknown project or case')
         exit(1)
