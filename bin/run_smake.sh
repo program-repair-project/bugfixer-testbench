@@ -34,17 +34,18 @@ else
   echo "Not supported"
 fi
 
-
 mkdir /experiment/smake-out
 cd /experiment/src
 make clean
+cp -rf /experiment/src /experiment/src-bic
 /bugfixer/smake/smake --init
 /bugfixer/smake/smake -j
 cp -r $target_loc ../smake-out/bic
 
 git reset --hard HEAD~1
-rm -r sparrow
+rm -rf sparrow
 make clean
+cp -rf /experiment/src /experiment/src-parent
 /bugfixer/smake/smake --init
 /bugfixer/smake/smake -j
 cp -r $target_loc ../smake-out/parent

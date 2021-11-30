@@ -111,18 +111,45 @@ def run_smake(works):
         case = docker_id[len(project) + 1:]
         container = docker_id + "-smake"
 
-        smake_outpath = os.path.join(PROJECT_HOME, "output", "smake-out",
-                                     project, case)
+        smake_bic_outpath = os.path.join(PROJECT_HOME, "output",
+                                     project, case, "bic", "smake-out")
+        smake_parent_outpath = os.path.join(PROJECT_HOME, "output",
+                                     project, case, "parent", "smake-out")
+        src_bic_outpath = os.path.join(PROJECT_HOME, "output",
+                                     project, case, "bic", "src")
+        src_parent_outpath = os.path.join(PROJECT_HOME, "output",
+                                     project, case, "parent", "src")
 
-        cmd = "rm -r %s" % smake_outpath
+        cmd = "rm -rf %s" % smake_bic_outpath
         run_cmd(cmd)
 
-        os.makedirs(smake_outpath, exist_ok=True)
-        cmd = "docker cp %s:/experiment/smake-out/bic %s" % (container,
-                                                             smake_outpath)
+        os.makedirs(smake_bic_outpath, exist_ok=True)
+
+        cmd = "rm -rf %s" % src_bic_outpath
         run_cmd(cmd)
-        cmd = "docker cp %s:/experiment/smake-out/parent %s" % (container,
-                                                                smake_outpath)
+
+        os.makedirs(src_bic_outpath, exist_ok=True)
+
+        cmd = "rm -rf %s" % smake_parent_outpath
+        run_cmd(cmd)
+
+        os.makedirs(smake_parent_outpath, exist_ok=True)
+
+        cmd = "rm -rf %s" % src_parent_outpath
+        run_cmd(cmd)
+
+        os.makedirs(src_parent_outpath, exist_ok=True)
+        cmd = "docker cp %s:/experiment/smake-out/bic/. %s" % (container,
+                                                             smake_bic_outpath)
+        run_cmd(cmd)
+        cmd = "docker cp %s:/experiment/src-bic/. %s" % (container,
+                                                             src_bic_outpath)
+        run_cmd(cmd)
+        cmd = "docker cp %s:/experiment/smake-out/parent/. %s" % (container,
+                                                                smake_parent_outpath)
+        run_cmd(cmd)
+        cmd = "docker cp %s:/experiment/src-parent/. %s" % (container,
+                                                                src_parent_outpath)
         run_cmd(cmd)
 
         cmd = "docker kill %s" % container
@@ -136,13 +163,12 @@ def run_sparrow(works):
         case = docker_id[len(project) + 1:]
 
         for version in ["bic", "parent"]:
-            smake_outpath = os.path.join(PROJECT_HOME, "output", "smake-out",
-                                         project, case, version)
+            smake_outpath = os.path.join(PROJECT_HOME, "output",
+                                         project, case, version, "smake-out")
             target_files = glob.glob(smake_outpath + '/*.i')
 
             sparrow_outpath = os.path.join(PROJECT_HOME, "output",
-                                           "sparrow-outs", project, case,
-                                           timestamp, version)
+                                           project, case, version, "sparrow-out")
             os.makedirs(sparrow_outpath, exist_ok=True)
             cmd = [
                 SPARROW_PATH, "-frontend", "clang",
