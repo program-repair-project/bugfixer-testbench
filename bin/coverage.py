@@ -4,10 +4,11 @@ import argparse
 import subprocess
 import os
 import logging
-from benchmark import benchmark 
+from benchmark import benchmark
 
 PROJECT_HOME = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-RUN_DOCKER_SCRIPT = os.path.join(PROJECT_HOME, 'bin/run-docker-differential.py')
+RUN_DOCKER_SCRIPT = os.path.join(PROJECT_HOME,
+                                 'bin/run-docker-differential.py')
 OUTPUT_DIR = os.path.join(PROJECT_HOME, 'output')
 
 
@@ -30,9 +31,11 @@ def get_one_coverage(project, case):
     if not docker_id:
         logging.error(f'Cannot find container_id of {project}:{case}')
         return
-    
+
     # copy scripts
-    cmd = ['docker', 'cp', './bin/line_matching.py', f'{docker_id}:/experiment']
+    cmd = [
+        'docker', 'cp', './bin/line_matching.py', f'{docker_id}:/experiment'
+    ]
     copy = subprocess.run(cmd)
     try:
         copy.check_returncode()
@@ -40,7 +43,10 @@ def get_one_coverage(project, case):
         logging.error(f'{project}-{case} copy failure')
 
     if project == 'libtiff':
-        cmd = ['docker', 'cp', './bin/parent_checkout.sh', f'{docker_id}:/experiment']
+        cmd = [
+            'docker', 'cp', './bin/parent_checkout.sh',
+            f'{docker_id}:/experiment'
+        ]
     else:
         raise Exception(f'{project} is not supported currently')
     copy = subprocess.run(cmd)
@@ -49,8 +55,11 @@ def get_one_coverage(project, case):
     except subprocess.CalledProcessError:
         logging.error(f'{project}-{case} copy failure')
 
-    # run localizer: run command will be modified
-    cmd = ['docker', 'exec', f'{docker_id}', '/bugfixer/localizer/main.exe', '-engine', 'tarantula', '.']
+    # run localizer
+    cmd = [
+        'docker', 'exec', f'{docker_id}', '/bugfixer/localizer/main.exe',
+        '-engine', 'tarantula', 'bic', '.'
+    ]
     localize = subprocess.run(cmd)
     try:
         localize.check_returncode()
@@ -58,21 +67,33 @@ def get_one_coverage(project, case):
         logging.error(f'{project}-{case} localize failure')
 
     # copy coverage data
-    cmd = ['docker', 'cp', f'{docker_id}:/experiment/localizer-out/coverage_diff.txt', f'{OUTPUT_DIR}/{project}/{case}/coverage.txt']
+    cmd = [
+        'docker', 'cp',
+        f'{docker_id}:/experiment/localizer-out/coverage_diff.txt',
+        f'{OUTPUT_DIR}/{project}/{case}/coverage.txt'
+    ]
     copy = subprocess.run(cmd)
     try:
         copy.check_returncode()
     except subprocess.CalledProcessError:
         logging.error(f'{project}-{case} coverage_diff copy failure')
 
-    cmd = ['docker', 'cp', f'{docker_id}:/experiment/localizer-out/coverage_bic.txt', f'{OUTPUT_DIR}/{project}/{case}/bic/coverage.txt']
+    cmd = [
+        'docker', 'cp',
+        f'{docker_id}:/experiment/localizer-out/coverage_bic.txt',
+        f'{OUTPUT_DIR}/{project}/{case}/bic/coverage.txt'
+    ]
     copy = subprocess.run(cmd)
     try:
         copy.check_returncode()
     except subprocess.CalledProcessError:
         logging.error(f'{project}-{case} coverage_bic copy failure')
 
-    cmd = ['docker', 'cp', f'{docker_id}:/experiment/localizer-out/coverage_parent.txt', f'{OUTPUT_DIR}/{project}/{case}/parent/coverage.txt']
+    cmd = [
+        'docker', 'cp',
+        f'{docker_id}:/experiment/localizer-out/coverage_parent.txt',
+        f'{OUTPUT_DIR}/{project}/{case}/parent/coverage.txt'
+    ]
     copy = subprocess.run(cmd)
     try:
         copy.check_returncode()
@@ -90,7 +111,7 @@ def get_one_coverage(project, case):
 
 def get_coverage(args):
     project, case = args.project, args.case
-    
+
     if project:
         if case:
             get_one_coverage(project, case)
@@ -104,7 +125,8 @@ def get_coverage(args):
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Get coverage data of project-case')
+    parser = argparse.ArgumentParser(
+        description='Get coverage data of project-case')
     parser.add_argument('-p', '--project', type=str)
     parser.add_argument('-c', '--case', type=str)
     args = parser.parse_args()
