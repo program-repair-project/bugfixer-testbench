@@ -115,6 +115,18 @@ def get_one_coverage(project, case):
     except subprocess.CalledProcessError:
         logging.error(f'{project}-{case} coverage_parent copy failure')
 
+    cmd = [
+        'docker', 'cp', f'{docker_id}:/experiment/line_matching.json',
+        f'{OUTPUT_DIR}/{project}/{case}/bic/sparrow-out/line-matching.json'
+    ]
+    copy = subprocess.run(cmd,
+                          stdout=subprocess.DEVNULL,
+                          stderr=subprocess.DEVNULL)
+    try:
+        copy.check_returncode()
+    except subprocess.CalledProcessError:
+        logging.error(f'{project}-{case} coverage_parent copy failure')
+
     # docker kill
     cmd = ['docker', 'kill', f'{docker_id}']
     kill = subprocess.run(cmd,
