@@ -65,7 +65,7 @@ def get_one_coverage(project, case):
     # run localizer
     cmd = [
         'docker', 'exec', f'{docker_id}', '/bugfixer/localizer/main.exe',
-        '-engine', 'tarantula', 'bic', '.'
+        '-engine', 'tarantula', '-bic', '.'
     ]
     localize = subprocess.run(cmd,
                               stdout=subprocess.DEVNULL,
