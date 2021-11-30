@@ -9,3 +9,5 @@ sparrow-out
 coverage.csv
 .history.txt
 output
+run-blazer.log
+__pycache__
