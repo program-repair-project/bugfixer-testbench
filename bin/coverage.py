@@ -13,9 +13,12 @@ OUTPUT_DIR = os.path.join(PROJECT_HOME, 'output')
 
 
 def get_one_coverage(project, case):
+    print("[*] Extracting coverage of : %s-%s" % (project, case))
     #run docker
     cmd = [f'{RUN_DOCKER_SCRIPT}', f'{project}-{case}', '-d']
-    run_docker = subprocess.run(cmd)
+    run_docker = subprocess.run(cmd,
+                                stdout=subprocess.DEVNULL,
+                                stderr=subprocess.DEVNULL)
     run_docker.check_returncode()
     docker_ps = subprocess.run(['docker', 'ps'],
                                capture_output=True,
@@ -36,7 +39,9 @@ def get_one_coverage(project, case):
     cmd = [
         'docker', 'cp', './bin/line_matching.py', f'{docker_id}:/experiment'
     ]
-    copy = subprocess.run(cmd)
+    copy = subprocess.run(cmd,
+                          stdout=subprocess.DEVNULL,
+                          stderr=subprocess.DEVNULL)
     try:
         copy.check_returncode()
     except subprocess.CalledProcessError:
@@ -49,7 +54,9 @@ def get_one_coverage(project, case):
         ]
     else:
         raise Exception(f'{project} is not supported currently')
-    copy = subprocess.run(cmd)
+    copy = subprocess.run(cmd,
+                          stdout=subprocess.DEVNULL,
+                          stderr=subprocess.DEVNULL)
     try:
         copy.check_returncode()
     except subprocess.CalledProcessError:
@@ -60,7 +67,9 @@ def get_one_coverage(project, case):
         'docker', 'exec', f'{docker_id}', '/bugfixer/localizer/main.exe',
         '-engine', 'tarantula', 'bic', '.'
     ]
-    localize = subprocess.run(cmd)
+    localize = subprocess.run(cmd,
+                              stdout=subprocess.DEVNULL,
+                              stderr=subprocess.DEVNULL)
     try:
         localize.check_returncode()
     except subprocess.CalledProcessError:
@@ -72,7 +81,9 @@ def get_one_coverage(project, case):
         f'{docker_id}:/experiment/localizer-out/coverage_diff.txt',
         f'{OUTPUT_DIR}/{project}/{case}/coverage.txt'
     ]
-    copy = subprocess.run(cmd)
+    copy = subprocess.run(cmd,
+                          stdout=subprocess.DEVNULL,
+                          stderr=subprocess.DEVNULL)
     try:
         copy.check_returncode()
     except subprocess.CalledProcessError:
@@ -83,7 +94,9 @@ def get_one_coverage(project, case):
         f'{docker_id}:/experiment/localizer-out/coverage_bic.txt',
         f'{OUTPUT_DIR}/{project}/{case}/bic/coverage.txt'
     ]
-    copy = subprocess.run(cmd)
+    copy = subprocess.run(cmd,
+                          stdout=subprocess.DEVNULL,
+                          stderr=subprocess.DEVNULL)
     try:
         copy.check_returncode()
     except subprocess.CalledProcessError:
@@ -94,7 +107,9 @@ def get_one_coverage(project, case):
         f'{docker_id}:/experiment/localizer-out/coverage_parent.txt',
         f'{OUTPUT_DIR}/{project}/{case}/parent/coverage.txt'
     ]
-    copy = subprocess.run(cmd)
+    copy = subprocess.run(cmd,
+                          stdout=subprocess.DEVNULL,
+                          stderr=subprocess.DEVNULL)
     try:
         copy.check_returncode()
     except subprocess.CalledProcessError:
@@ -102,7 +117,9 @@ def get_one_coverage(project, case):
 
     # docker kill
     cmd = ['docker', 'kill', f'{docker_id}']
-    kill = subprocess.run(cmd)
+    kill = subprocess.run(cmd,
+                          stdout=subprocess.DEVNULL,
+                          stderr=subprocess.DEVNULL)
     try:
         kill.check_returncode()
     except subprocess.CalledProcessError:
