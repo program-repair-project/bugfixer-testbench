@@ -10,3 +10,9 @@ benchmark = {
     ],
     "php": []
 }
+
+bic_location = {
+    "libtiff": {
+        "2005-12-14-6746b87-0d3d51d": [("tiffcp.c", 746), ("tiffcp.c", 856)]
+    }
+}
