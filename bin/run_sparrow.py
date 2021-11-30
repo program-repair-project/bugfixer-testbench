@@ -14,10 +14,11 @@ MAX_INSTANCE_NUM = 2
 
 
 def run_cmd(cmd_str):
-    print("[*] Executing: %s" % cmd_str)
     cmd_args = cmd_str.split()
     try:
-        subprocess.call(cmd_args)
+        subprocess.call(cmd_args,
+                        stdout=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL)
     except Exception as e:
         print(e)
         exit(1)
@@ -76,13 +77,14 @@ def run_smake(works):
             "docker", "exec", "-it", container, "/experiment/run_smake.sh",
             project, case
         ]
-        print("[*] Executing: %s" % " ".join(cmd))
+        print("[*] Executing: smake for %s" % project + "-" + case)
         run_smake = subprocess.Popen(cmd,
                                      stdout=subprocess.DEVNULL,
                                      stderr=subprocess.DEVNULL)
         PROCS.append(run_smake)
     for proc in PROCS:
         proc.communicate()
+        proc.terminate()
 
     for docker_id in works:
         project = docker_id.split('-')[0]
@@ -121,15 +123,17 @@ def run_sparrow(works):
                 SPARROW_PATH, "-frontend", "clang",
                 "-extract_datalog_fact_full_no_opt_dag", "-outdir",
                 sparrow_outpath
-            ]
-            print("[*] Executing: %s ./*.i" % " ".join(cmd))
-            run_sparrow = subprocess.Popen(cmd + target_files,
+            ] + target_files
+            print("[*] Executing: Sparrow for %s" % project + "-" + case +
+                  "-" + version)
+            run_sparrow = subprocess.Popen(cmd,
                                            stdout=subprocess.DEVNULL,
                                            stderr=subprocess.DEVNULL)
             PROCS.append(run_sparrow)
 
     for proc in PROCS:
         proc.communicate()
+        proc.terminate()
 
 
 def main():
