@@ -34,18 +34,23 @@ else
   echo "Not supported"
 fi
 
-mkdir /experiment/smake-out
+OUTDIR=/experiment/$1-$2
+mkdir $OUTDIR
+
+mkdir $OUTDIR/bic
 cd /experiment/src
 make clean
-cp -rf /experiment/src /experiment/src-bic
+cp -rf /experiment/src $OUTDIR/bic/src
 /bugfixer/smake/smake --init
 /bugfixer/smake/smake -j
-cp -r $target_loc ../smake-out/bic
+cp -r $target_loc $OUTDIR/bic/smake-out
 
+## Todo: checking out to parent differs by projects. Generalize this process.
+mkdir $OUTDIR/parent
 git reset --hard HEAD~1
 rm -rf sparrow
 make clean
-cp -rf /experiment/src /experiment/src-parent
+cp -rf /experiment/src $OUTDIR/parent/src
 /bugfixer/smake/smake --init
 /bugfixer/smake/smake -j
-cp -r $target_loc ../smake-out/parent
+cp -r $target_loc $OUTDIR/parent/smake-out

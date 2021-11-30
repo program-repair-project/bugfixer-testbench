@@ -3,28 +3,14 @@
 import os
 import subprocess
 import argparse
-import csv
-import sys
 import glob
-from datetime import datetime
+from benchmark import benchmark
 
 REPO_NAME = "prosyslab/manybugs-differential"
 PROJECT_HOME = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 SMAKE_HOME = os.path.join(PROJECT_HOME, "smake")
-PROJECT_LIST = ['libtiff']
 SPARROW_PATH = os.path.join(PROJECT_HOME, 'sparrow', 'bin', 'sparrow')
-MAX_INSTANCE_NUM = 15
-
-timestamp = ''
-
-
-def init(args):
-    global timestamp
-
-    if args.timestamp:
-        timestamp = args.timestamp
-    else:
-        timestamp = datetime.today().strftime('%Y%m%d-%H:%M:%S')
+MAX_INSTANCE_NUM = 2
 
 
 def run_cmd(cmd_str):
@@ -50,16 +36,18 @@ def get_cmd_result(cmd_str):
         exit(1)
 
 
-def generate_worklist(projects):
+def generate_worklist(args):
     worklist = []
-    for project in projects:
-        dockers = subprocess.check_output(['docker', 'images']).decode('utf-8')
-        dockers = dockers.split("\n")
-
-        for d in dockers:
-            if project in d and "differential" in d:
-                _, docker_id = d.split()[:2]
-                worklist.append(docker_id)
+    if (args.project == "all"):
+        for project in benchmark:
+            for case in benchmark[project]:
+                worklist.append(project + "-" + case)
+    else:
+        if (args.case):
+            worklist.append(args.project + "-" + args.case)
+        else:
+            for case in benchmark[args.project]:
+                worklist.append(args.project + "-" + case)
 
     return worklist
 
@@ -111,45 +99,14 @@ def run_smake(works):
         case = docker_id[len(project) + 1:]
         container = docker_id + "-smake"
 
-        smake_bic_outpath = os.path.join(PROJECT_HOME, "output",
-                                     project, case, "bic", "smake-out")
-        smake_parent_outpath = os.path.join(PROJECT_HOME, "output",
-                                     project, case, "parent", "smake-out")
-        src_bic_outpath = os.path.join(PROJECT_HOME, "output",
-                                     project, case, "bic", "src")
-        src_parent_outpath = os.path.join(PROJECT_HOME, "output",
-                                     project, case, "parent", "src")
+        outpath = os.path.join(PROJECT_HOME, "output", project, case)
 
-        cmd = "rm -rf %s" % smake_bic_outpath
+        cmd = "rm -rf %s" % outpath
         run_cmd(cmd)
+        os.makedirs(outpath, exist_ok=True)
 
-        os.makedirs(smake_bic_outpath, exist_ok=True)
-
-        cmd = "rm -rf %s" % src_bic_outpath
-        run_cmd(cmd)
-
-        os.makedirs(src_bic_outpath, exist_ok=True)
-
-        cmd = "rm -rf %s" % smake_parent_outpath
-        run_cmd(cmd)
-
-        os.makedirs(smake_parent_outpath, exist_ok=True)
-
-        cmd = "rm -rf %s" % src_parent_outpath
-        run_cmd(cmd)
-
-        os.makedirs(src_parent_outpath, exist_ok=True)
-        cmd = "docker cp %s:/experiment/smake-out/bic/. %s" % (container,
-                                                             smake_bic_outpath)
-        run_cmd(cmd)
-        cmd = "docker cp %s:/experiment/src-bic/. %s" % (container,
-                                                             src_bic_outpath)
-        run_cmd(cmd)
-        cmd = "docker cp %s:/experiment/smake-out/parent/. %s" % (container,
-                                                                smake_parent_outpath)
-        run_cmd(cmd)
-        cmd = "docker cp %s:/experiment/src-parent/. %s" % (container,
-                                                                src_parent_outpath)
+        cmd = "docker cp %s:/experiment/%s/. %s" % (container, project + "-" +
+                                                    case, outpath)
         run_cmd(cmd)
 
         cmd = "docker kill %s" % container
@@ -163,16 +120,17 @@ def run_sparrow(works):
         case = docker_id[len(project) + 1:]
 
         for version in ["bic", "parent"]:
-            smake_outpath = os.path.join(PROJECT_HOME, "output",
-                                         project, case, version, "smake-out")
+            smake_outpath = os.path.join(PROJECT_HOME, "output", project, case,
+                                         version, "smake-out")
             target_files = glob.glob(smake_outpath + '/*.i')
 
-            sparrow_outpath = os.path.join(PROJECT_HOME, "output",
-                                           project, case, version, "sparrow-out")
+            sparrow_outpath = os.path.join(PROJECT_HOME, "output", project,
+                                           case, version, "sparrow-out")
             os.makedirs(sparrow_outpath, exist_ok=True)
             cmd = [
                 SPARROW_PATH, "-frontend", "clang",
-                "-extract_datalog_fact_full_no_opt_dag", "-outdir", sparrow_outpath
+                "-extract_datalog_fact_full_no_opt_dag", "-outdir",
+                sparrow_outpath
             ] + target_files
 
             run_sparrow = subprocess.Popen(cmd, stdout=subprocess.PIPE)
@@ -183,25 +141,13 @@ def run_sparrow(works):
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Build bugs using BugZoo.')
-    parser.add_argument('-t', '--timestamp', type=str)
+    parser = argparse.ArgumentParser()
     parser.add_argument('-p', '--project', type=str, default="all")
     parser.add_argument('-c', '--case', type=str)
     parser.add_argument('--skip_smake', action='store_true', default=False)
     args = parser.parse_args()
 
-    init(args)
-
-    if args.project == "all":
-        projects = PROJECT_LIST
-    else:
-        projects = [args.project]
-
-    if args.case:
-        worklist = [args.project + "-" + args.case]
-    else:
-        worklist = generate_worklist(projects)
-
+    worklist = generate_worklist(args)
     while len(worklist) > 0:
         works = fetch_works(worklist)
         if not args.skip_smake:
