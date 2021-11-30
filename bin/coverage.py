@@ -92,7 +92,7 @@ def get_one_coverage(project, case):
     cmd = [
         'docker', 'cp',
         f'{docker_id}:/experiment/localizer-out/coverage_bic.txt',
-        f'{OUTPUT_DIR}/{project}/{case}/bic/coverage.txt'
+        f'{OUTPUT_DIR}/{project}/{case}/bic/sparrow-out/coverage.txt'
     ]
     copy = subprocess.run(cmd,
                           stdout=subprocess.DEVNULL,
@@ -105,7 +105,7 @@ def get_one_coverage(project, case):
     cmd = [
         'docker', 'cp',
         f'{docker_id}:/experiment/localizer-out/coverage_parent.txt',
-        f'{OUTPUT_DIR}/{project}/{case}/parent/coverage.txt'
+        f'{OUTPUT_DIR}/{project}/{case}/parent/sparrow-out/coverage.txt'
     ]
     copy = subprocess.run(cmd,
                           stdout=subprocess.DEVNULL,
