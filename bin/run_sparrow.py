@@ -23,19 +23,6 @@ def run_cmd(cmd_str):
         exit(1)
 
 
-def get_cmd_result(cmd_str):
-    print("[*] Executing: %s" % cmd_str)
-    cmd_args = cmd_str.split()
-    try:
-        PIPE = subprocess.PIPE
-        p = subprocess.Popen(cmd_args, stdin=PIPE, stdout=PIPE, stderr=PIPE)
-        output, _ = p.communicate()
-        return output
-    except Exception as e:
-        print(e)
-        exit(1)
-
-
 def generate_worklist(args):
     worklist = []
     if (args.project == "all"):
@@ -89,7 +76,10 @@ def run_smake(works):
             "docker", "exec", "-it", container, "/experiment/run_smake.sh",
             project, case
         ]
-        run_smake = subprocess.Popen(cmd)
+        print("[*] Executing: %s" % " ".join(cmd))
+        run_smake = subprocess.Popen(cmd,
+                                     stdout=subprocess.DEVNULL,
+                                     stderr=subprocess.DEVNULL)
         PROCS.append(run_smake)
     for proc in PROCS:
         proc.communicate()
@@ -131,9 +121,11 @@ def run_sparrow(works):
                 SPARROW_PATH, "-frontend", "clang",
                 "-extract_datalog_fact_full_no_opt_dag", "-outdir",
                 sparrow_outpath
-            ] + target_files
-
-            run_sparrow = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+            ]
+            print("[*] Executing: %s ./*.i" % " ".join(cmd))
+            run_sparrow = subprocess.Popen(cmd + target_files,
+                                           stdout=subprocess.DEVNULL,
+                                           stderr=subprocess.DEVNULL)
             PROCS.append(run_sparrow)
 
     for proc in PROCS:
