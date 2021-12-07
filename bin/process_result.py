@@ -36,7 +36,7 @@ def get_answer_index(project, case, rank):
     for i, (cand, score) in enumerate(rank):
         if (cand.split(':')[0], int(cand.split(':')[1])) in answer_list:
             return score, i
-    return -1, -1
+    return 2.0, -1
 
 
 def get_same_rank(rank, answer_score):
@@ -46,13 +46,14 @@ def get_same_rank(rank, answer_score):
         if score == answer_score:
             if start < 0:
                 start = i
-        elif score > answer_score:
+        elif score < answer_score:
             return start, i - 1
+    #print(start, i)
     return start, i
 
 
 def calculate_info(rank, start, end):
-    return end, end - start + 1, len(rank)
+    return end+1, end - start + 1, len(rank)
 
 
 def get_one_result(project, case, timestamp):
@@ -86,11 +87,11 @@ def get_result(args):
 
 
 def print_result(result):
-    print(result)
-    print("Rank\tTie\tTotal")
+    #print(result)
+    print("Case\tRank\tTie\tTotal")
     for project in result:
         for case in result[project]:
-            print("\t".join(map(str, result[project][case])))
+            print(case+"\t"+"\t".join(map(str, result[project][case])))
 
 
 def main():
