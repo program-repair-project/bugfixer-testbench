@@ -105,6 +105,63 @@ def run_smake(works):
         run_cmd(cmd)
 
 
+def transform(file, from_text, to_text):
+    with open(file, 'rt') as f:
+        data = f.read()
+        data = data.replace(from_text, to_text)
+
+    with open(file, 'wt') as f:
+        f.write(data)
+
+
+# to handle exceptional cases for sparrow
+def run_transform(works):
+    for docker_id in works:
+        project = docker_id.split('-')[0]
+        case = docker_id[len(project) + 1:]
+        outpath = os.path.join(PROJECT_HOME, "output", project, case)
+
+        if project == "libtiff" and case == "2005-12-21-3b848a7-3edb9cd":
+            file = os.path.join(outpath, "parent", "smake-out",
+                                "16.015.tif_open.o.i")
+            transform(file, "_TIFFmalloc(sizeof (TIFF) + strlen(name) + 1)",
+                      "malloc(sizeof (TIFF))")
+            file = os.path.join(outpath, "bic", "smake-out",
+                                "16.015.tif_open.o.i")
+            transform(file, "_TIFFmalloc(sizeof (TIFF) + strlen(name) + 1)",
+                      "malloc(sizeof (TIFF))")
+
+        if project == "libtiff" and case == "2007-11-02-371336d-865f7b2":
+            file = os.path.join(outpath, "parent", "smake-out",
+                                "17.016.tif_open.o.i")
+            transform(
+                file,
+                "_TIFFmalloc((tmsize_t)(sizeof (TIFF) + strlen(name) + 1))",
+                "malloc(sizeof (TIFF))")
+            file = os.path.join(outpath, "bic", "smake-out",
+                                "17.016.tif_open.o.i")
+            transform(
+                file,
+                "_TIFFmalloc((tmsize_t)(sizeof (TIFF) + strlen(name) + 1))",
+                "malloc(sizeof (TIFF))")
+
+        if project == "libtiff" and case == "2006-03-03-a72cf60-0a36d7f":
+            file = os.path.join(outpath, "parent", "smake-out",
+                                "08.007.tif_dirread.o.i")
+            transform(
+                file,
+                "_TIFFCheckMalloc(tif,\n        dircount,\n        sizeof (TIFFDirEntry),\n        \"to read TIFF directory\");",
+                "malloc(sizeof(TIFFDirEntry));\n\n\n")
+            file = os.path.join(outpath, "bic", "smake-out",
+                                "08.007.tif_dirread.o.i")
+            transform(
+                file,
+                "_TIFFCheckMalloc(tif,\n        dircount,\n        sizeof (TIFFDirEntry),\n        \"to read TIFF directory\");",
+                "malloc(sizeof(TIFFDirEntry));\n\n\n")
+            file = os.path.join(outpath, "bic", "smake-out",
+                                "08.007.tif_dirread.o.i")
+
+
 def run_sparrow(works):
     PROCS = []
     for docker_id in works:
@@ -120,7 +177,7 @@ def run_sparrow(works):
                                            case, version, "sparrow-out")
             os.makedirs(sparrow_outpath, exist_ok=True)
             cmd = [
-                SPARROW_PATH, "-frontend", "clang",
+                SPARROW_PATH, "-frontend", "clang", "-skip_main_analysis",
                 "-extract_datalog_fact_full_no_opt_dag", "-outdir",
                 sparrow_outpath
             ] + target_files
@@ -148,6 +205,7 @@ def main():
         works = fetch_works(worklist)
         if not args.skip_smake:
             run_smake(works)
+        run_transform(works)
         run_sparrow(works)
 
 
