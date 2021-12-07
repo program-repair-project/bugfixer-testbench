@@ -10,7 +10,7 @@ REPO_NAME = "prosyslab/manybugs-differential"
 PROJECT_HOME = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 SMAKE_HOME = os.path.join(PROJECT_HOME, "smake")
 SPARROW_PATH = os.path.join(PROJECT_HOME, 'sparrow', 'bin', 'sparrow')
-MAX_INSTANCE_NUM = 2
+MAX_INSTANCE_NUM = 5
 
 
 def run_cmd(cmd_str):
@@ -66,30 +66,10 @@ def run_smake(works):
                                                              container)
         run_cmd(cmd)
 
-    ## run smake in parallel
-    PROCS = []
-    for docker_id in works:
-        project = docker_id.split('-')[0]
-        case = docker_id[len(project) + 1:]
-        container = docker_id + "-smake"
-
-        cmd = [
-            "docker", "exec", "-it", container, "/experiment/run_smake.sh",
-            project, case
-        ]
         print("[*] Executing: smake for %s" % project + "-" + case)
-        run_smake = subprocess.Popen(cmd,
-                                     stdout=subprocess.DEVNULL,
-                                     stderr=subprocess.DEVNULL)
-        PROCS.append(run_smake)
-    for proc in PROCS:
-        proc.communicate()
-        proc.terminate()
-
-    for docker_id in works:
-        project = docker_id.split('-')[0]
-        case = docker_id[len(project) + 1:]
-        container = docker_id + "-smake"
+        cmd_str = "docker exec -it %s /experiment/run_smake.sh %s %s" % (
+            container, project, case)
+        run_cmd(cmd_str)
 
         outpath = os.path.join(PROJECT_HOME, "output", project, case)
 
@@ -177,20 +157,25 @@ def run_sparrow(works):
                                            case, version, "sparrow-out")
             os.makedirs(sparrow_outpath, exist_ok=True)
             cmd = [
-                SPARROW_PATH, "-frontend", "clang", "-skip_main_analysis",
-                "-extract_datalog_fact_full_no_opt_dag", "-outdir",
-                sparrow_outpath
-            ] + target_files
+                SPARROW_PATH, "-extract_datalog_fact_full_no_opt_dag",
+                "-skip_main_analysis", "-outdir", sparrow_outpath
+            ]
+            if project == "gmp" or project == "libtiff":
+                cmd += ["-frontend", "cil"]
+            else:
+                cmd += ["-frontend", "clang"]
+            cmd += target_files
+
             print("[*] Executing: Sparrow for %s" % project + "-" + case +
                   "-" + version)
+
             run_sparrow = subprocess.Popen(cmd,
                                            stdout=subprocess.DEVNULL,
                                            stderr=subprocess.DEVNULL)
             PROCS.append(run_sparrow)
 
     for proc in PROCS:
-        proc.communicate()
-        proc.terminate()
+        proc.wait()
 
 
 def main():
@@ -198,6 +183,7 @@ def main():
     parser.add_argument('-p', '--project', type=str, default="all")
     parser.add_argument('-c', '--case', type=str)
     parser.add_argument('--skip_smake', action='store_true', default=False)
+    parser.add_argument('--skip_sparrow', action='store_true', default=False)
     args = parser.parse_args()
 
     worklist = generate_worklist(args)
@@ -205,8 +191,9 @@ def main():
         works = fetch_works(worklist)
         if not args.skip_smake:
             run_smake(works)
-        run_transform(works)
-        run_sparrow(works)
+        if not args.skip_sparrow:
+            run_transform(works)
+            run_sparrow(works)
 
 
 if __name__ == '__main__':
