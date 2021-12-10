@@ -47,7 +47,7 @@ def get_one_coverage(project, case):
     except subprocess.CalledProcessError:
         logging.error(f'{project}-{case} copy failure')
 
-    if project == 'libtiff':
+    if project == 'libtiff' or project == 'gmp':
         cmd = [
             'docker', 'cp', './bin/parent_checkout.sh',
             f'{docker_id}:/experiment'
