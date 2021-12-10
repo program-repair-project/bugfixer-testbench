@@ -27,7 +27,7 @@ def get_rank_list(project, case, timestamp):
 
 
 def get_answer_index(project, case, rank):
-    diff = 1  # design choice
+    diff = 0  # design choice, we find exactly same loc in rank for the time being
 
     bic_location_list = bic_location[project][case]
 
