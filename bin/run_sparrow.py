@@ -192,7 +192,7 @@ def main():
         if not args.skip_smake:
             run_smake(works)
         if not args.skip_sparrow:
-            run_transform(works)
+            # run_transform(works)
             run_sparrow(works)
 
 
