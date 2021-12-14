@@ -28,6 +28,8 @@ def run_blazer(args, timestamp, project, case):
         os.path.join(OUTPUT_DIR, project, case, 'parent', 'sparrow-out'),
         os.path.join(OUTPUT_DIR, project, case, 'bic', 'sparrow-out')
     ]
+    if args.debug:
+        cmd.append("-debug")
     logging.info("Cmd: {}".format(" ".join(cmd)))
     return subprocess.Popen(cmd, stdout=subprocess.DEVNULL)
 
@@ -62,6 +64,7 @@ def main():
     parser = argparse.ArgumentParser(description='Run Blazer')
     parser.add_argument('-p', '--project', type=str, default="all")
     parser.add_argument('-c', '--case', type=str)
+    parser.add_argument('-g', '--debug', action='store_true', default=False)
     parser.add_argument('--default_edb_prob', type=str, default="0.5")
     args = parser.parse_args()
     run(args)
