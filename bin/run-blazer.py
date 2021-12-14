@@ -29,26 +29,33 @@ def run_blazer(args, timestamp, project, case):
         os.path.join(OUTPUT_DIR, project, case, 'bic', 'sparrow-out')
     ]
     logging.info("Cmd: {}".format(" ".join(cmd)))
-    subprocess.run(cmd, stdout=subprocess.DEVNULL)
+    return subprocess.Popen(cmd, stdout=subprocess.DEVNULL)
 
 
 def run(args):
     timestamp = datetime.datetime.now().strftime('%Y%m%d-%H:%M:%S')
     print("Timestamp: " + timestamp)
     logging.info("Timestamp: " + timestamp)
+    child_processes = []
     if args.project == "all":
         for project in benchmark.benchmark:
             for case in benchmark.benchmark[project]:
-                run_blazer(args, timestamp, project, case)
+                child_processes.append(
+                    run_blazer(args, timestamp, project, case))
     elif args.project in benchmark.benchmark and args.case == None:
         for case in benchmark.benchmark[args.project]:
-            run_blazer(args, timestamp, args.project, case)
+            child_processes.append(
+                run_blazer(args, timestamp, args.project, case))
     elif args.project in benchmark.benchmark and args.case in benchmark.benchmark[
             args.project]:
-        run_blazer(args, timestamp, args.project, args.case)
+        child_processes.append(
+            run_blazer(args, timestamp, args.project, args.case))
     else:
         print('Unknown project or case')
         exit(1)
+
+    for cp in child_processes:
+        cp.wait()
 
 
 def main():
