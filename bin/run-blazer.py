@@ -34,8 +34,9 @@ def run_blazer(args, timestamp, project, case):
     return subprocess.Popen(cmd, stdout=subprocess.DEVNULL)
 
 
-def run(args):
-    timestamp = datetime.datetime.now().strftime('%Y%m%d-%H:%M:%S')
+def run(args, timestamp):
+    timestamp = datetime.datetime.now().strftime(
+        '%Y%m%d-%H:%M:%S') if timestamp is None else timestamp
     print("Timestamp: " + timestamp)
     logging.info("Timestamp: " + timestamp)
     child_processes = []
@@ -66,8 +67,9 @@ def main():
     parser.add_argument('-c', '--case', type=str)
     parser.add_argument('-g', '--debug', action='store_true', default=False)
     parser.add_argument('--default_edb_prob', type=str, default="0.5")
+    parser.add_argument('--timestamp', type=str)
     args = parser.parse_args()
-    run(args)
+    run(args, args.timestamp)
 
 
 if __name__ == '__main__':
