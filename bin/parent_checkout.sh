@@ -8,7 +8,7 @@ cp -rf bic src
 cd /experiment/src
 git reset --hard HEAD~1
 cd /experiment
-./line_matching.py "./bic/" "./src/"
+./line_matching.py "./src/" "./bic/"
 cd /experiment/src
 rm -rf test
 cp -rf ../test .
