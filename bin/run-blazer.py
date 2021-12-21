@@ -23,8 +23,9 @@ logging.basicConfig(level=logging.INFO, \
 
 def run_blazer(args, timestamp, project, case):
     cmd = [
-        BLAZER_BIN, '-timestamp', timestamp, '-default_edb_prob',
-        args.default_edb_prob, '-eps', args.eps, '-parent_dir',
+        BLAZER_BIN, '-timestamp', timestamp, '-default_rule_prob',
+        args.default_rule_prob, '-default_rule_prob2', args.default_rule_prob2,
+        '-default_edb_prob', args.default_edb_prob, '-parent_dir',
         os.path.join(OUTPUT_DIR, project, case, 'parent', 'sparrow-out'),
         os.path.join(OUTPUT_DIR, project, case, 'bic', 'sparrow-out')
     ]
@@ -66,8 +67,9 @@ def main():
     parser.add_argument('-p', '--project', type=str, default="all")
     parser.add_argument('-c', '--case', type=str)
     parser.add_argument('-g', '--debug', action='store_true', default=False)
+    parser.add_argument('--default_rule_prob', type=str, default="0.99")
+    parser.add_argument('--default_rule_prob2', type=str, default="0.5")
     parser.add_argument('--default_edb_prob', type=str, default="0.5")
-    parser.add_argument('--eps', type=str, default="0.01")
     parser.add_argument('--timestamp', type=str)
     args = parser.parse_args()
     run(args, args.timestamp)
