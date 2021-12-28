@@ -32,6 +32,8 @@ def run_blazer(args, timestamp, project, case):
     ]
     if args.debug:
         cmd.append("-debug")
+    if args.soft_disj:
+        cmd.append("-soft_disj")
     logging.info("Cmd: {}".format(" ".join(cmd)))
     return subprocess.Popen(cmd, stdout=subprocess.DEVNULL)
 
@@ -68,6 +70,10 @@ def main():
     parser.add_argument('-p', '--project', type=str, default="all")
     parser.add_argument('-c', '--case', type=str)
     parser.add_argument('-g', '--debug', action='store_true', default=False)
+    parser.add_argument('-s',
+                        '--soft_disj',
+                        action='store_true',
+                        default=False)
     parser.add_argument('--default_rule_prob', type=str, default="0.99")
     parser.add_argument('--default_rule_prob2', type=str, default="0.5")
     parser.add_argument('--default_edb_prob', type=str, default="0.5")
