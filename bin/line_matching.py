@@ -17,7 +17,7 @@ def get_filepaths(directory):
     file_paths = set()
     for root, directories, files in os.walk(directory):
         for filename in [
-                f for f in files if f.endswith('.c') or f.endswith('.h')
+                f for f in files if (f.endswith('.c') or f.endswith('.h')) and (not os.path.islink(os.path.join(root, f)))
         ]:
             filepath = os.path.join(root, filename)[len(directory) + 1:]
             file_paths.add(filepath)

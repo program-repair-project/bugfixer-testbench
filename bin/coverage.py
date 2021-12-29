@@ -47,10 +47,15 @@ def get_one_coverage(project, case):
     except subprocess.CalledProcessError:
         logging.error(f'{project}-{case} copy failure')
 
-    if project == 'libtiff' or project == 'gmp':
+    if project == 'libtiff':
         cmd = [
-            'docker', 'cp', './bin/parent_checkout.sh',
-            f'{docker_id}:/experiment'
+            'docker', 'cp', './bin/parent_checkout_libtiff.sh',
+            f'{docker_id}:/experiment/parent_checkout.sh'
+        ]
+    elif project == 'gmp':
+        cmd = [
+            'docker', 'cp', './bin/parent_checkout_gmp.sh',
+            f'{docker_id}:/experiment/parent_checkout.sh'
         ]
     else:
         raise Exception(f'{project} is not supported currently')
