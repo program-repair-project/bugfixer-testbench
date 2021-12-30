@@ -12,7 +12,7 @@ RUN_DOCKER_SCRIPT = os.path.join(PROJECT_HOME,
 OUTPUT_DIR = os.path.join(PROJECT_HOME, 'output')
 
 
-def get_one_coverage(project, case):
+def get_one_coverage(project, case, engine):
     print("[*] Extracting coverage of : %s-%s" % (project, case))
     #run docker
     cmd = [f'{RUN_DOCKER_SCRIPT}', f'{project}-{case}', '-d']
@@ -70,7 +70,7 @@ def get_one_coverage(project, case):
     # run localizer
     cmd = [
         'docker', 'exec', f'{docker_id}', '/bugfixer/localizer/main.exe',
-        '-engine', 'tarantula', '-bic', '.'
+        '-engine', engine, '-bic', '.'
     ]
     localize = subprocess.run(cmd,
                               stdout=subprocess.DEVNULL,
@@ -144,18 +144,18 @@ def get_one_coverage(project, case):
 
 
 def get_coverage(args):
-    project, case = args.project, args.case
+    project, case, engine = args.project, args.case, args.engine
 
     if project:
         if case:
-            get_one_coverage(project, case)
+            get_one_coverage(project, case, engine)
         else:
             for case in benchmark[project]:
-                get_one_coverage(project, case)
+                get_one_coverage(project, case, engine)
     else:
         for project in benchmark:
             for case in benchmark[project]:
-                get_one_coverage(project, case)
+                get_one_coverage(project, case, engine)
 
 
 def main():
@@ -163,6 +163,12 @@ def main():
         description='Get coverage data of project-case')
     parser.add_argument('-p', '--project', type=str)
     parser.add_argument('-c', '--case', type=str)
+    parser.add_argument(
+        '-e',
+        '--engine',
+        type=str,
+        choices=['tarantula', 'ochiai', 'jaccard', 'prophet', 'all'],
+        default='tarantula')
     args = parser.parse_args()
     get_coverage(args)
 
