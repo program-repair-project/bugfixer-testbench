@@ -76,7 +76,7 @@ def main():
                         default=False)
     parser.add_argument('--default_rule_prob', type=str, default="0.99")
     parser.add_argument('--default_rule_prob2', type=str, default="0.5")
-    parser.add_argument('--default_edb_prob', type=str, default="0.5")
+    parser.add_argument('--default_edb_prob', type=str, default="0.99")
     parser.add_argument('--default_obs_prob', type=str, default="0.99")
     parser.add_argument('--eps', type=str, default="0.01")
     parser.add_argument('--timestamp', type=str)

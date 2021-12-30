@@ -157,7 +157,7 @@ def run_sparrow(works):
                                            case, version, "sparrow-out")
             os.makedirs(sparrow_outpath, exist_ok=True)
             cmd = [
-                SPARROW_PATH, "-extract_datalog_fact_full_no_opt_dag",
+                SPARROW_PATH, "-extract_datalog_fact_full_no_opt",
                 "-skip_main_analysis", "-outdir", sparrow_outpath
             ]
             if project == "gmp" or project == "libtiff":
