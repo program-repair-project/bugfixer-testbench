@@ -34,6 +34,8 @@ def run_blazer(args, timestamp, project, case):
         cmd.append("-debug")
     if args.soft_disj:
         cmd.append("-soft_disj")
+    if args.prune_cons:
+        cmd.append("-prune_cons")
     logging.info("Cmd: {}".format(" ".join(cmd)))
     return subprocess.Popen(cmd, stdout=subprocess.DEVNULL)
 
@@ -79,6 +81,7 @@ def main():
     parser.add_argument('--default_edb_prob', type=str, default="0.99")
     parser.add_argument('--default_obs_prob', type=str, default="0.99")
     parser.add_argument('--eps', type=str, default="0.01")
+    parser.add_argument('--prune_cons', action='store_true')
     parser.add_argument('--timestamp', type=str)
     args = parser.parse_args()
     run(args, args.timestamp)
