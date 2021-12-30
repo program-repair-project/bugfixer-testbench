@@ -53,15 +53,18 @@ def get_same_rank(rank, answer_score):
 
 
 def calculate_info(rank, start, end):
-    return end+1, end - start + 1, len(rank)
+    return end + 1, end - start + 1, len(rank)
 
 
 def get_one_result(project, case, timestamp):
-    rank_list = get_rank_list(project, case, timestamp)
-    answer_score, answer_index = get_answer_index(project, case, rank_list)
-    start, end = get_same_rank(rank_list, answer_score)
-    rank, tie, total = calculate_info(rank_list, start, end)
-    return rank, tie, total
+    try:
+        rank_list = get_rank_list(project, case, timestamp)
+        answer_score, answer_index = get_answer_index(project, case, rank_list)
+        start, end = get_same_rank(rank_list, answer_score)
+        rank, tie, total = calculate_info(rank_list, start, end)
+        return rank, tie, total
+    except FileNotFoundError:
+        return 0, 0, 0
 
 
 def get_result(args):
@@ -91,7 +94,7 @@ def print_result(result):
     print("Case\tRank\tTie\tTotal")
     for project in result:
         for case in result[project]:
-            print(case+"\t"+"\t".join(map(str, result[project][case])))
+            print(case + "\t" + "\t".join(map(str, result[project][case])))
 
 
 def main():
