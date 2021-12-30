@@ -93,12 +93,24 @@ def get_result(args, result_file):
     return result
 
 
-def print_result(result):
+def print_result(result_list):
     #print(result)
-    print("Case\tRank\tTie\tTotal")
-    for project in result:
-        for case in result[project]:
-            print(case + "\t" + "\t".join(map(str, result[project][case])))
+    new_result = {}
+    print(
+        "Case\tInit_Rank\tInit_Tie\tInit_Total\tFeedback_Rank\tFeedback_Tie\tFeedback_Total\tScore_Rank\tScore_Tie\tScore_Total"
+    )
+    for result in result_list:
+        for project in result:
+            if project not in new_result:
+                new_result[project] = {}
+            for case in result[project]:
+                if case not in new_result[project]:
+                    new_result[project][case] = []
+                new_result[project][case].append("\t".join(
+                    map(str, result[project][case])))
+    for project in new_result:
+        for case in new_result[project]:
+            print(case + "\t" + "\t".join(new_result[project][case]))
 
 
 def main():
@@ -109,18 +121,10 @@ def main():
     parser.add_argument('-c', '--case', type=str)
     parser.add_argument('-t', '--timestamp', required=True, type=str)
     args = parser.parse_args()
-    result = get_result(args, 'init.txt')
-    print("------init.txt------")
-    print_result(result)
-    print("--------------------\n")
-    result = get_result(args, 'feedback.txt')
-    print("------feedback.txt------")
-    print_result(result)
-    print("------------------------\n")
-    result = get_result(args, 'score.txt')
-    print("------score.txt------")
-    print_result(result)
-    print("---------------------\n")
+    result_init = get_result(args, 'init.txt')
+    result_feedback = get_result(args, 'feedback.txt')
+    result_score = get_result(args, 'score.txt')
+    print_result([result_init, result_feedback, result_score])
 
 
 if __name__ == '__main__':
