@@ -7,16 +7,16 @@ from benchmark import benchmark, bic_location
 PROJECT_HOME = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
 
-def open_result(project, case, timestamp):
+def open_result(project, case, timestamp, result_file):
     result_path = os.path.join(PROJECT_HOME, 'output', project, case, 'bic',
                                'sparrow-out', 'interval',
-                               'merged-bnet-' + timestamp, 'score.txt')
+                               'merged-bnet-' + timestamp, result_file)
     result_file = open(result_path, 'r')
     return result_file
 
 
-def get_rank_list(project, case, timestamp):
-    file = open_result(project, case, timestamp)
+def get_rank_list(project, case, timestamp, result_file):
+    file = open_result(project, case, timestamp, result_file)
 
     rank = []
     for line in file.read().splitlines()[1:]:
@@ -56,9 +56,9 @@ def calculate_info(rank, start, end):
     return end + 1, end - start + 1, len(rank)
 
 
-def get_one_result(project, case, timestamp):
+def get_one_result(project, case, timestamp, result_file):
     try:
-        rank_list = get_rank_list(project, case, timestamp)
+        rank_list = get_rank_list(project, case, timestamp, result_file)
         answer_score, answer_index = get_answer_index(project, case, rank_list)
         start, end = get_same_rank(rank_list, answer_score)
         rank, tie, total = calculate_info(rank_list, start, end)
@@ -67,24 +67,28 @@ def get_one_result(project, case, timestamp):
         return 0, 0, 0
 
 
-def get_result(args):
+def get_result(args, result_file):
     result = {}
 
     project, case, timestamp = args.project, args.case, args.timestamp
 
     if project:
         if case:
-            result[project] = {case: get_one_result(project, case, timestamp)}
+            result[project] = {
+                case: get_one_result(project, case, timestamp, result_file)
+            }
         else:
             temp_project = {}
             for case in benchmark[project]:
-                temp_project[case] = get_one_result(project, case, timestamp)
+                temp_project[case] = get_one_result(project, case, timestamp,
+                                                    result_file)
             result[project] = temp_project
     else:
         for project in benchmark:
             temp_project = {}
             for case in benchmark[project]:
-                temp_project[case] = get_one_result(project, case, timestamp)
+                temp_project[case] = get_one_result(project, case, timestamp,
+                                                    result_file)
             result[project] = temp_project
     return result
 
@@ -105,8 +109,18 @@ def main():
     parser.add_argument('-c', '--case', type=str)
     parser.add_argument('-t', '--timestamp', required=True, type=str)
     args = parser.parse_args()
-    result = get_result(args)
+    result = get_result(args, 'init.txt')
+    print("------init.txt------")
     print_result(result)
+    print("--------------------\n")
+    result = get_result(args, 'feedback.txt')
+    print("------feedback.txt------")
+    print_result(result)
+    print("------------------------\n")
+    result = get_result(args, 'score.txt')
+    print("------score.txt------")
+    print_result(result)
+    print("---------------------\n")
 
 
 if __name__ == '__main__':
