@@ -73,7 +73,9 @@ def run_smake(works):
 
         outpath = os.path.join(PROJECT_HOME, "output", project, case)
 
-        cmd = "rm -rf %s" % outpath
+        cmd = "rm -rf %s" % os.path.join(outpath, "bic", "smake-out")
+        run_cmd(cmd)
+        cmd = "rm -rf %s" % os.path.join(outpath, "parent", "smake-out")
         run_cmd(cmd)
         os.makedirs(outpath, exist_ok=True)
 
