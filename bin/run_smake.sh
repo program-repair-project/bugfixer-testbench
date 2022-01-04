@@ -28,11 +28,11 @@ if [[ $1 == "gmp" ]]; then
       /bugfixer/smake/smake t-gcd
       cp /experiment/src/tests/mpz/sparrow/t-gcd.o.i $OUTDIR/bic/smake-out
       rm -r /experiment/src/tests/mpz/sparrow
-      
+
       cd /experiment/src
       hg update -C -r 14161
     fi
-    
+
     make clean
     cp -rf /experiment/src $OUTDIR/parent/src
     yes | /bugfixer/smake/smake --init
@@ -93,8 +93,22 @@ elif [[ $1 == "libtiff" ]]; then
     cp -r $target_loc $OUTDIR/parent/smake-out
 
 elif [[ $1 == "php" ]]; then
-    target_loc=""
+    target_loc="/experiment/src/sparrow/sapi/cli/php"
+    cd /experiment/src
+    make clean
+    cp -rf /experiment/src $OUTDIR/bic/src
+    yes | /bugfixer/smake/smake --init
+    /bugfixer/smake/smake -j
+    cp -r $target_loc $OUTDIR/bic/smake-out
+
+    ## Todo: checking out to parent differs by projects. Generalize this process.
+    git reset --hard HEAD~1
+    rm -rf sparrow
+    make clean
+    cp -rf /experiment/src $OUTDIR/parent/src
+    yes | /bugfixer/smake/smake --init
+    /bugfixer/smake/smake -j
+    cp -r $target_loc $OUTDIR/parent/smake-out
 else
   echo "Not supported"
 fi
-
