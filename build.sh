@@ -5,7 +5,7 @@ set -e
 export OPAMYES=1
 
 NCPU="$(getconf _NPROCESSORS_ONLN 2>/dev/null || echo 1)"
-OCAML_VERSION="4.11.0+flambda"
+OCAML_VERSION="4.13.0"
 OPAM_SWITCH=program-repair-project-$OCAML_VERSION
 
 opam init --compiler=$OCAML_VERSION -j $NCPU --no-setup
@@ -24,11 +24,11 @@ else
   opam switch $OPAM_SWITCH
 fi
 
-eval $(SHELL=bash opam config env --switch=$SPARROW_OPAM_SWITCH)
+eval $(SHELL=bash opam config env --switch=$OPAM_SWITCH)
 
 # build bug-localizer
 opam pin add cil https://github.com/prosyslab/cil.git -n
-opam install -j $NCPU dune batteries cil ppx_compare ocamlformat merlin yojson xmlm
+opam install -j $NCPU dune batteries cil ppx_compare ocamlformat ocamlgraph merlin yojson xmlm
 
 make
 
