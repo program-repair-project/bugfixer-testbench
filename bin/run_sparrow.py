@@ -196,6 +196,7 @@ def main():
         if not args.skip_sparrow:
             # run_transform(works)
             run_sparrow(works)
+            continue
 
 
 if __name__ == '__main__':

@@ -1,5 +1,27 @@
 #!/bin/bash
 
+function checkout_php_parent_old() {
+  git checkout HEAD~1 -f
+  git clean -fd
+  ./buildconf
+  sed -i "s/2.4.1/2.4.1 2.4.2 2.4.3/g" configure
+  ./configure
+  cp ../origin/ext/dom/* ext/dom/
+  cp ../origin/ext/simplexml/* ext/simplexml/
+  cp ../origin/ext/xmlreader/php_xmlreader.c ext/xmlreader/php_xmlreader.c
+  sed -i "s/#define PHP_ME_MAPPING  ZEND_ME_MAPPING/#define PHP_ME_MAPPING  ZEND_ME_MAPPING\n#define PHP_FE_END      ZEND_FE_END/g" main/php.h
+  sed -i "s/#define ZEND_ARG_INFO(pass_by_ref, name)/#define ZEND_FE_END            { NULL, NULL, NULL, 0, 0 }\n#define ZEND_ARG_INFO(pass_by_ref, name)/g" Zend/zend_API.h
+  sed -i "s/ZEND_MOD_OPTIONAL_EX(name, NULL, NULL)/ZEND_MOD_OPTIONAL_EX(name, NULL, NULL)\n#define ZEND_MOD_END { NULL, NULL, NULL, 0 }/g" Zend/zend_modules.h
+  git checkout -- ext/xmlreader/php_xmlreader.c ext/dom/php_dom.c ext/dom/php_dom.h
+  sed -i "s/, zval \*return_value/, zval \*in, zval \*return_value/g" ext/dom/php_dom.c
+  sed -i "s/wrapper_in, zval \*//g" ext/dom/php_dom.c
+  sed -i "s/wrapper_in, zval \*//g" ext/dom/php_dom.h
+  git checkout -- ext/simplexml/simplexml.c
+  sed -i "s/outbuf->buffer->content/xmlOutputBufferGetContent(outbuf)/g" ext/simplexml/simplexml.c
+  sed -i "s/outbuf->buffer->use/xmlOutputBufferGetSize(outbuf)/g" ext/simplexml/simplexml.c
+  git checkout -- ext/simplexml/sxe.c
+}
+
 OUTDIR=/experiment/$1-$2
 mkdir $OUTDIR
 mkdir $OUTDIR/bic
@@ -74,6 +96,7 @@ elif [[ $1 == "libtiff" ]]; then
       target_loc="/experiment/src/sparrow/tools/.libs/tiffcrop"
     else
       echo "Not supported"
+      exit
     fi
 
     cd /experiment/src
@@ -101,14 +124,28 @@ elif [[ $1 == "php" ]]; then
     /bugfixer/smake/smake -j
     cp -r $target_loc $OUTDIR/bic/smake-out
 
-    ## Todo: checking out to parent differs by projects. Generalize this process.
-    git reset --hard HEAD~1
+
+    if [[ $2 == "2011-01-18-95388b7cda-b9b1fb1827" ]] ||
+       [[ $2 == "2011-01-18-95388b7cda-b9b1fb1827" ]] ||
+       [[ $2 == "2011-01-18-95388b7cda-b9b1fb1827" ]] ||
+       [[ $2 == "2011-02-21-2a6968e43a-ecb9d8019c" ]] ||
+       [[ $2 == "2011-03-11-d890ece3fc-6e74d95f34" ]] ||
+       [[ $2 == "2011-03-27-11efb7295e-f7b7b6aa9e" ]] ||
+       [[ $2 == "2011-04-07-d3274b7f20-77ed819430" ]] ; then
+      checkout_php_parent_old
+    else
+      echo "Not supported yet"
+      exit
+    fi
+
     rm -rf sparrow
     make clean
     cp -rf /experiment/src $OUTDIR/parent/src
     yes | /bugfixer/smake/smake --init
     /bugfixer/smake/smake -j
     cp -r $target_loc $OUTDIR/parent/smake-out
+    
 else
   echo "Not supported"
 fi
+
