@@ -40,7 +40,8 @@ bic_location = {
                                        ("thumbnail.c", 558),
                                        ("thumbnail.c", 600)],
         "2009-02-05-764dbba-2e42d63": [("tiffcrop.c", 2690)],
-        "2009-06-30-b44af47-e0b51f3": [("tiffcp.c", 355)],  # for sparrow else node issue
+        "2009-06-30-b44af47-e0b51f3":
+        [("tiffcp.c", 355)],  # for sparrow else node issue
         "2010-11-27-eb326f9-eec7ec0": [("tiff2pdf.c", 769)],
         "2010-12-13-96a5fb4-bdba15c": [("tiffcrop.c", 1889),
                                        ("tiffcrop.c", 4612),
