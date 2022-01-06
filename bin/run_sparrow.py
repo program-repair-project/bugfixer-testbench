@@ -5,6 +5,7 @@ import subprocess
 import argparse
 import glob
 from benchmark import benchmark
+from benchmark import sparrow_custom_option
 
 REPO_NAME = "prosyslab/manybugs-differential"
 PROJECT_HOME = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
@@ -13,12 +14,16 @@ SPARROW_PATH = os.path.join(PROJECT_HOME, 'sparrow', 'bin', 'sparrow')
 MAX_INSTANCE_NUM = 5
 
 
-def run_cmd(cmd_str):
-    cmd_args = cmd_str.split()
+def run_cmd(cmd_str, shell=False):
+    if shell:
+        cmd_args = cmd_str
+    else:
+        cmd_args = cmd_str.split()
     try:
         subprocess.call(cmd_args,
                         stdout=subprocess.DEVNULL,
-                        stderr=subprocess.DEVNULL)
+                        stderr=subprocess.DEVNULL,
+                        shell=shell)
     except Exception as e:
         print(e)
         exit(1)
@@ -103,45 +108,34 @@ def run_transform(works):
         case = docker_id[len(project) + 1:]
         outpath = os.path.join(PROJECT_HOME, "output", project, case)
 
-        if project == "libtiff" and case == "2005-12-21-3b848a7-3edb9cd":
-            file = os.path.join(outpath, "parent", "smake-out",
-                                "16.015.tif_open.o.i")
-            transform(file, "_TIFFmalloc(sizeof (TIFF) + strlen(name) + 1)",
-                      "malloc(sizeof (TIFF))")
-            file = os.path.join(outpath, "bic", "smake-out",
-                                "16.015.tif_open.o.i")
-            transform(file, "_TIFFmalloc(sizeof (TIFF) + strlen(name) + 1)",
-                      "malloc(sizeof (TIFF))")
+        if project == "php" and case == "2011-01-18-95388b7cda-b9b1fb1827":
+            for ver in ["parent", "bic"]:
+                file = os.path.join(outpath, ver, "smake-out",
+                                    "0048.apprentice.o.i")
+                cmd = "sed '13511,122959d' -i {}".format(file)
+                print(cmd)
+                run_cmd(cmd, shell=True)
+                file = os.path.join(outpath, ver, "smake-out",
+                                    "0004.parse_tz.o.i")
+                cmd = "sed '5147,22843d' -i {}".format(file)
+                run_cmd(cmd, shell=True)
+                file = os.path.join(outpath, ver, "smake-out", "010e.zend.o.i")
+                cmd = "sed -e 's/alias(\"zend_error\"),//g' -i {}".format(file)
+                run_cmd(cmd, shell=True)
 
-        if project == "libtiff" and case == "2007-11-02-371336d-865f7b2":
-            file = os.path.join(outpath, "parent", "smake-out",
-                                "17.016.tif_open.o.i")
-            transform(
-                file,
-                "_TIFFmalloc((tmsize_t)(sizeof (TIFF) + strlen(name) + 1))",
-                "malloc(sizeof (TIFF))")
-            file = os.path.join(outpath, "bic", "smake-out",
-                                "17.016.tif_open.o.i")
-            transform(
-                file,
-                "_TIFFmalloc((tmsize_t)(sizeof (TIFF) + strlen(name) + 1))",
-                "malloc(sizeof (TIFF))")
 
-        if project == "libtiff" and case == "2006-03-03-a72cf60-0a36d7f":
-            file = os.path.join(outpath, "parent", "smake-out",
-                                "08.007.tif_dirread.o.i")
-            transform(
-                file,
-                "_TIFFCheckMalloc(tif,\n        dircount,\n        sizeof (TIFFDirEntry),\n        \"to read TIFF directory\");",
-                "malloc(sizeof(TIFFDirEntry));\n\n\n")
-            file = os.path.join(outpath, "bic", "smake-out",
-                                "08.007.tif_dirread.o.i")
-            transform(
-                file,
-                "_TIFFCheckMalloc(tif,\n        dircount,\n        sizeof (TIFFDirEntry),\n        \"to read TIFF directory\");",
-                "malloc(sizeof(TIFFDirEntry));\n\n\n")
-            file = os.path.join(outpath, "bic", "smake-out",
-                                "08.007.tif_dirread.o.i")
+def get_target_files(project, case, version):
+    smake_outpath = os.path.join(PROJECT_HOME, "output", project, case,
+                                 version, "smake-out")
+    coverage_file = os.path.join(PROJECT_HOME, "data", "coverage_file",
+                                 project, case, "coverage_file.txt")
+
+    target_files = []
+    for filename in open(coverage_file, 'r'):
+        filename = os.path.splitext(filename.strip())[0]
+        target_files += glob.glob(smake_outpath + '/*' + filename + '*.i')
+
+    return target_files
 
 
 def run_sparrow(works):
@@ -153,7 +147,11 @@ def run_sparrow(works):
         for version in ["bic", "parent"]:
             smake_outpath = os.path.join(PROJECT_HOME, "output", project, case,
                                          version, "smake-out")
-            target_files = glob.glob(smake_outpath + '/*.i')
+
+            if project in ["php"]:
+                target_files = get_target_files(project, case, version)
+            else:
+                target_files = glob.glob(smake_outpath + '/*.i')
 
             sparrow_outpath = os.path.join(PROJECT_HOME, "output", project,
                                            case, version, "sparrow-out")
@@ -162,10 +160,16 @@ def run_sparrow(works):
                 SPARROW_PATH, "-extract_datalog_fact_full_no_opt",
                 "-skip_main_analysis", "-outdir", sparrow_outpath
             ]
-            if project == "gmp" or project == "libtiff":
+            if project in ["gmp", "libtiff", "php"]:
                 cmd += ["-frontend", "cil"]
             else:
                 cmd += ["-frontend", "clang"]
+
+            if project in sparrow_custom_option and case in sparrow_custom_option[
+                    project]:
+                cmd += sparrow_custom_option[project][case]
+
+            benchmark
             cmd += target_files
 
             print("[*] Executing: Sparrow for %s" % project + "-" + case +
@@ -193,8 +197,8 @@ def main():
         works = fetch_works(worklist)
         if not args.skip_smake:
             run_smake(works)
+            run_transform(works)
         if not args.skip_sparrow:
-            # run_transform(works)
             run_sparrow(works)
             continue
 

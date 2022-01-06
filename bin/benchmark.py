@@ -56,3 +56,14 @@ bic_location = {
         "14166-14167": [("gcdext.c", 56)]
     }
 }
+
+sparrow_custom_option = {
+    "php": {
+        "2011-01-18-95388b7cda-b9b1fb1827": [
+            "-unsound_alloc", "-unsound_const_string", "-unsound_recursion",
+            "-unsound_noreturn_function", "-unsound_skip_global_array_init",
+            "100", "-top_location", "-max_pre_iter", "2",
+            "-keep_unreachable_from", "zif_dom_document_save_html"
+        ]
+    }
+}
