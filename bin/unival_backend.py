@@ -115,6 +115,19 @@ def run_one(project, case, timestamp):
     except subprocess.CalledProcessError:
         logging.error(f'{project}:{case} cp output failed')
 
+    stop_cmd = ['docker', 'stop', f'{docker_id}']
+    stop = subprocess.run(stop_cmd)
+    try:
+        stop.check_returncode()
+    except subprocess.CalledProcessError:
+        logging.error(f'Cannot stop docker container of {project}:{case}')
+    rm_cmd = ['docker', 'rm', f'{docker_id}']
+    rm = subprocess.run(rm_cmd)
+    try:
+        rm.check_returncode()
+    except subprocess.CalledProcessError:
+        logging.error(f'Cannot remove docker continer of {project}:{case}')
+
 
 def run(args):
     project, case, timestamp = args.project, args.case, args.timestamp
