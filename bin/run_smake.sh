@@ -1,14 +1,15 @@
 #!/bin/bash
 
-function checkout_php_parent_old() {
+function checkout_php_parent_a() {
   git checkout HEAD~1 -f
   git clean -fd
   ./buildconf
   sed -i "s/2.4.1/2.4.1 2.4.2 2.4.3/g" configure
   ./configure
-  cp ../origin/ext/dom/* ext/dom/
-  cp ../origin/ext/simplexml/* ext/simplexml/
-  cp ../origin/ext/xmlreader/php_xmlreader.c ext/xmlreader/php_xmlreader.c
+  cp $OUTDIR/bic/src/ext/dom/node.c ext/dom/node.c
+  cp $OUTDIR/bic/src/ext/dom/documenttype.c ext/dom/documenttype.c
+  cp $OUTDIR/bic/src/ext/simplexml/* ext/simplexml/
+  cp $OUTDIR/bic/src/ext/xmlreader/php_xmlreader.c ext/xmlreader/php_xmlreader.c
   sed -i "s/#define PHP_ME_MAPPING  ZEND_ME_MAPPING/#define PHP_ME_MAPPING  ZEND_ME_MAPPING\n#define PHP_FE_END      ZEND_FE_END/g" main/php.h
   sed -i "s/#define ZEND_ARG_INFO(pass_by_ref, name)/#define ZEND_FE_END            { NULL, NULL, NULL, 0, 0 }\n#define ZEND_ARG_INFO(pass_by_ref, name)/g" Zend/zend_API.h
   sed -i "s/ZEND_MOD_OPTIONAL_EX(name, NULL, NULL)/ZEND_MOD_OPTIONAL_EX(name, NULL, NULL)\n#define ZEND_MOD_END { NULL, NULL, NULL, 0 }/g" Zend/zend_modules.h
@@ -20,6 +21,47 @@ function checkout_php_parent_old() {
   sed -i "s/outbuf->buffer->content/xmlOutputBufferGetContent(outbuf)/g" ext/simplexml/simplexml.c
   sed -i "s/outbuf->buffer->use/xmlOutputBufferGetSize(outbuf)/g" ext/simplexml/simplexml.c
   git checkout -- ext/simplexml/sxe.c
+}
+
+function checkout_php_parent_b() { 
+  git checkout HEAD~1 -f
+  git clean -fd
+  ./buildconf
+  sed -i "s/2.4.1/2.4.1 2.4.2 2.4.3/g" configure
+  ./configure
+
+  cp $OUTDIR/bic/src/ext/dom/* ext/dom/
+  cp $OUTDIR/bic/src/ext/simplexml/* ext/simplexml/
+  cp $OUTDIR/bic/src/ext/xmlreader/php_xmlreader.c ext/xmlreader/php_xmlreader.c
+  sed -i "s/#define PHP_ME_MAPPING  ZEND_ME_MAPPING/#define PHP_ME_MAPPING  ZEND_ME_MAPPING\n#define PHP_FE_END      ZEND_FE_END/g" main/php.h
+  sed -i "s/#define ZEND_ARG_INFO(pass_by_ref, name)/#define ZEND_FE_END            { NULL, NULL, NULL, 0, 0 }\n#define ZEND_ARG_INFO(pass_by_ref, name)/g" Zend/zend_API.h
+  sed -i "s/ZEND_MOD_OPTIONAL_EX(name, NULL, NULL)/ZEND_MOD_OPTIONAL_EX(name, NULL, NULL)\n#define ZEND_MOD_END { NULL, NULL, NULL, 0 }/g" Zend/zend_modules.h
+  git checkout -- ext/xmlreader/php_xmlreader.c
+  sed -i "s/DOM_RET_OBJ(rv, nodec,/DOM_RET_OBJ(nodec,/g" ext/xmlreader/php_xmlreader.c
+  git checkout -- ext/dom/php_dom.c
+  sed -i "s/DOM_RET_OBJ(rv,/DOM_RET_OBJ(/g" ext/dom/php_dom.c
+  sed -i "s/wrapper_in, zval \*//g" ext/dom/php_dom.c
+  git checkout -- ext/simplexml/simplexml.c
+  sed -i "s/outbuf->buffer->content/xmlOutputBufferGetContent(outbuf)/g" ext/simplexml/simplexml.c
+  sed -i "s/outbuf->buffer->use/xmlOutputBufferGetSize(outbuf)/g" ext/simplexml/simplexml.c
+  git checkout -- ext/simplexml/sxe.c
+}
+
+function checkout_php_parent_c(){
+  git checkout HEAD~1 -f
+  git clean -fd
+  ./buildconf
+  sed -i "s/2.4.1 2.4.2/2.4.1 2.4.2 2.4.3/g" configure
+  ./configure
+
+  cp $OUTDIR/bic/src/ext/dom/node.c ext/dom/node.c
+  cp $OUTDIR/bic/src/ext/dom/documenttype.c ext/dom/documenttype.c
+	cp $OUTDIR/bic/src/ext/simplexml/* ext/simplexml/
+	cp $OUTDIR/bic/src/ext/xmlreader/php_xmlreader.c ext/xmlreader/php_xmlreader.c
+	sed -i "s/#define PHP_ME_MAPPING  ZEND_ME_MAPPING/#define PHP_ME_MAPPING  ZEND_ME_MAPPING\n#define PHP_FE_END      ZEND_FE_END/g" main/php.h
+	sed -i "s/#define ZEND_ARG_INFO(pass_by_ref, name)/#define ZEND_FE_END            { NULL, NULL, NULL, 0, 0 }\n#define ZEND_ARG_INFO(pass_by_ref, name)/g" Zend/zend_API.h
+	sed -i "s/ZEND_MOD_OPTIONAL_EX(name, NULL, NULL)/ZEND_MOD_OPTIONAL_EX(name, NULL, NULL)\n#define ZEND_MOD_END { NULL, NULL, NULL, 0 }/g" Zend/zend_modules.h
+	
 }
 
 OUTDIR=/experiment/$1-$2
@@ -125,16 +167,23 @@ elif [[ $1 == "php" ]]; then
     cp -r $target_loc $OUTDIR/bic/smake-out
 
 
-    if [[ $2 == "2011-01-18-95388b7cda-b9b1fb1827" ]] ||
-       [[ $2 == "2011-01-18-95388b7cda-b9b1fb1827" ]] ||
-       [[ $2 == "2011-01-18-95388b7cda-b9b1fb1827" ]] ||
-       [[ $2 == "2011-02-21-2a6968e43a-ecb9d8019c" ]] ||
-       [[ $2 == "2011-03-11-d890ece3fc-6e74d95f34" ]] ||
-       [[ $2 == "2011-03-27-11efb7295e-f7b7b6aa9e" ]] ||
-       [[ $2 == "2011-04-07-d3274b7f20-77ed819430" ]] ; then
-      checkout_php_parent_old
-    else
-      echo "Not supported yet"
+    if   [[ $2 == "2011-01-18-95388b7cda-b9b1fb1827" ]] ||
+         [[ $2 == "2011-02-21-2a6968e43a-ecb9d8019c" ]] ||
+         [[ $2 == "2011-03-11-d890ece3fc-6e74d95f34" ]] ||
+         [[ $2 == "2011-03-27-11efb7295e-f7b7b6aa9e" ]] ||
+         [[ $2 == "2011-04-07-d3274b7f20-77ed819430" ]] ; then
+      checkout_php_parent_a
+    elif [[ $2 == "2011-10-31-c4eb5f2387-2e5d5e5ac6" ]] ||
+         [[ $2 == "2011-11-08-0ac9b9b0ae-cacf363957" ]] ||
+         [[ $2 == "2011-12-04-1e6a82a1cf-dfa08dc325" ]] ; then
+      checkout_php_parent_b
+    elif [[ $2 == "2011-11-19-eeba0b5681-f330c8ab4e" ]] ||
+         [[ $2 == "2012-03-08-0169020e49-cdc512afb3" ]] ; then
+      checkout_php_parent_c
+    elif [[ $2 == "2012-03-12-7aefbf70a8-efc94f3115" ]] || 
+         [[ $2 == "2011-11-11-fcbfbea8d2-c1e510aea8" ]] ||
+         [[ $2 == "2011-11-08-c3e56a152c-3598185a74" ]] ; then
+      echo "Not supported"
       exit
     fi
 
@@ -148,4 +197,3 @@ elif [[ $1 == "php" ]]; then
 else
   echo "Not supported"
 fi
-
