@@ -23,16 +23,23 @@ def rreplace(s, old, new, occurrence):
 def var2loc(var, RESULT_PATH):
     print(var)
     var_ver = rreplace(var, '_', ',', 1)
-    result_file = os.path.join(RESULT_PATH, 'output.txt')
-    grep = subprocess.run(['grep', '-a', f',{var_ver}', result_file],
+    SRC_PATH = os.path.join(os.path.dirname(RESULT_PATH), 'src')
+    grep = subprocess.run(['grep', '-rh', var_ver, SRC_PATH],
                           capture_output=True,
                           text=True)
     try:
         grep.check_returncode()
     except:
-        logging.warning("Not found:", var)
+        logging.warning(f'Not found: {var}')
         return "No_loc:-1"
-    out = grep.stdout.split('\n')[0].split(',')
+    out = []
+    for output in grep.stdout.splitlines():
+        if "fprintf" in output:
+            out.append(output)
+    if not out:
+        logging.warning(f'Not found: {var_ver}')
+        return "No_loc:-1"
+    out = out[0].split('"')[1].split(',')
     return f'{out[0]}:{out[2]}'
 
 
@@ -48,10 +55,21 @@ def run_one(project, case):
             elif line[0] == "1":
                 score_list = line[1:]
     assert len(var_list) == len(score_list)
+    loc_score_map = {}
+    for var, score in zip(var_list, score_list):
+        loc = var2loc(var, RESULT_PATH)
+        score = float(score)
+        if loc not in loc_score_map:
+            loc_score_map[loc] = score
+        elif loc_score_map[loc] < score:
+            loc_score_map[loc] = score
+    loc_score_assoc = sorted(loc_score_map.items(),
+                             key=lambda item: item[1],
+                             reverse=True)
     with open(os.path.join(RESULT_PATH, 'observation.txt'),
               'w') as result_file:
-        for var, score in zip(var_list, score_list):
-            result_file.write(f'{var2loc(var, RESULT_PATH)},0,0,{score}\n')
+        for loc, score in loc_score_assoc:
+            result_file.write(f'{loc},0,0,{score}\n')
 
 
 def run(args):
