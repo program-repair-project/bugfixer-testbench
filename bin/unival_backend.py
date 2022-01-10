@@ -40,9 +40,7 @@ def run_one(project, case):
     run_cmd_and_check([
         'docker', 'run', '-it', '-d', '--name', f'{project}-{case}', 'unival',
         '/bin/bash'
-    ],
-                      stdout=subprocess.DEVNULL,
-                      stderr=subprocess.DEVNULL)
+    ])
 
     # find docker container ID
     docker_ps = run_cmd_and_check(['docker', 'ps'],
@@ -93,7 +91,8 @@ def run_one(project, case):
         ['docker', 'cp', f'{docker_id}:/unival/', f'{DATA_PATH}/'])
 
     # docker kill
-    run_cmd_and_check(['docker', 'kill', docker_id])
+    run_cmd_and_check(['docker', 'stop', docker_id])
+    run_cmd_and_check(['docker', 'rm', docker_id])
 
 
 def run(args):
