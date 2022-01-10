@@ -77,19 +77,74 @@ def run_one_observe(project, case, engine):
                 'docker', 'cp', './bin/parent_checkout_gmp.sh',
                 f'{docker_id}:/experiment/parent_checkout.sh'
             ]
+        elif project == 'php':
+            run_cmd_and_check([
+                'docker', 'exec', f'{docker_id}', 'sed', '-i',
+                's/ \$pharcmd"/"/g', '/experiment/src/configure'
+            ])
+            if case in [
+                    "2011-01-18-95388b7cda-b9b1fb1827",
+                    "2011-02-21-2a6968e43a-ecb9d8019c",
+                    "2011-03-11-d890ece3fc-6e74d95f34",
+                    "2011-03-27-11efb7295e-f7b7b6aa9e",
+                    "2011-04-07-d3274b7f20-77ed819430"
+            ]:
+                cmd = [
+                    'docker', 'cp', './bin/parent_checkout_php_a.sh',
+                    f'{docker_id}:/experiment/parent_checkout.sh'
+                ]
+            elif case in [
+                    "2011-10-31-c4eb5f2387-2e5d5e5ac6",
+                    "2011-11-08-0ac9b9b0ae-cacf363957",
+                    "2011-12-04-1e6a82a1cf-dfa08dc325"
+            ]:
+                cmd = [
+                    'docker', 'cp', './bin/parent_checkout_php_b.sh',
+                    f'{docker_id}:/experiment/parent_checkout.sh'
+                ]
+            elif case in [
+                    "2011-11-19-eeba0b5681-f330c8ab4e",
+                    "2012-03-08-0169020e49-cdc512afb3"
+            ]:
+                cmd = [
+                    'docker', 'cp', './bin/parent_checkout_php_c.sh',
+                    f'{docker_id}:/experiment/parent_checkout.sh'
+                ]
+            elif case in [
+                    "2012-03-12-7aefbf70a8-efc94f3115",
+                    "2011-11-11-fcbfbea8d2-c1e510aea8",
+                    "2011-11-08-c3e56a152c-3598185a74"
+            ]:
+                cmd = [
+                    'docker', 'cp', './bin/parent_checkout_php_d.sh',
+                    f'{docker_id}:/experiment/parent_checkout.sh'
+                ]
         else:
-            raise Exception(f'{project} is not supported currently')
+            raise Exception(f'{project}-{case} is not supported currently')
         run_cmd_and_check(cmd,
                           stdout=subprocess.DEVNULL,
                           stderr=subprocess.DEVNULL)
 
     # run localizer
-    run_cmd_and_check([
-        'docker', 'exec', f'{docker_id}', '/bugfixer/localizer/main.exe',
-        '-engine', engine, '-bic', '.'
-    ],
-                      stdout=subprocess.DEVNULL,
-                      stderr=subprocess.DEVNULL)
+    if project == 'php':
+        cmd = [
+            'docker', 'exec', f'{docker_id}', '/bugfixer/localizer/main.exe',
+            '-engine', engine, '-bic', 'no_seg', '.'
+        ]
+    else:
+        cmd = [
+            'docker', 'exec', f'{docker_id}', '/bugfixer/localizer/main.exe',
+            '-engine', engine, '-bic', '.'
+        ]
+    run_cmd_and_check(cmd)
+
+    # make output directories
+    os.makedirs(f'{OUTPUT_DIR}/{project}/{case}/bic/sparrow-out',
+                exist_ok=True)
+    os.makedirs(f'{OUTPUT_DIR}/{project}/{case}/parent/sparrow-out',
+                exist_ok=True)
+    os.makedirs(f'{PROJECT_HOME}/data/coverage_file/{project}/{case}',
+                exist_ok=True)
 
     # copy output data
     if engine == 'unival':
@@ -112,6 +167,13 @@ def run_one_observe(project, case, engine):
             ],
                               stdout=subprocess.DEVNULL,
                               stderr=subprocess.DEVNULL)
+        run_cmd_and_check([
+            'docker', 'cp',
+            f'{docker_id}:/experiment/localizer-out/coverage_file.txt',
+            f'{PROJECT_HOME}/data/coverage_file/{project}/{case}/coverage_file.txt'
+        ],
+                          stdout=subprocess.DEVNULL,
+                          stderr=subprocess.DEVNULL)
 
     # docker kill
     run_cmd_and_check(['docker', 'kill', f'{docker_id}'],

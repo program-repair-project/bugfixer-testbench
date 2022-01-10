@@ -56,11 +56,27 @@ function checkout_php_parent_c(){
 
   cp $OUTDIR/bic/src/ext/dom/node.c ext/dom/node.c
   cp $OUTDIR/bic/src/ext/dom/documenttype.c ext/dom/documenttype.c
-	cp $OUTDIR/bic/src/ext/simplexml/* ext/simplexml/
-	cp $OUTDIR/bic/src/ext/xmlreader/php_xmlreader.c ext/xmlreader/php_xmlreader.c
-	sed -i "s/#define PHP_ME_MAPPING  ZEND_ME_MAPPING/#define PHP_ME_MAPPING  ZEND_ME_MAPPING\n#define PHP_FE_END      ZEND_FE_END/g" main/php.h
-	sed -i "s/#define ZEND_ARG_INFO(pass_by_ref, name)/#define ZEND_FE_END            { NULL, NULL, NULL, 0, 0 }\n#define ZEND_ARG_INFO(pass_by_ref, name)/g" Zend/zend_API.h
-	sed -i "s/ZEND_MOD_OPTIONAL_EX(name, NULL, NULL)/ZEND_MOD_OPTIONAL_EX(name, NULL, NULL)\n#define ZEND_MOD_END { NULL, NULL, NULL, 0 }/g" Zend/zend_modules.h
+  cp $OUTDIR/bic/src/ext/simplexml/* ext/simplexml/
+  cp $OUTDIR/bic/src/ext/xmlreader/php_xmlreader.c ext/xmlreader/php_xmlreader.c
+  sed -i "s/#define PHP_ME_MAPPING  ZEND_ME_MAPPING/#define PHP_ME_MAPPING  ZEND_ME_MAPPING\n#define PHP_FE_END      ZEND_FE_END/g" main/php.h
+  sed -i "s/#define ZEND_ARG_INFO(pass_by_ref, name)/#define ZEND_FE_END            { NULL, NULL, NULL, 0, 0 }\n#define ZEND_ARG_INFO(pass_by_ref, name)/g" Zend/zend_API.h
+  sed -i "s/ZEND_MOD_OPTIONAL_EX(name, NULL, NULL)/ZEND_MOD_OPTIONAL_EX(name, NULL, NULL)\n#define ZEND_MOD_END { NULL, NULL, NULL, 0 }/g" Zend/zend_modules.h
+	
+}
+
+function checkout_php_parent_d(){
+  git checkout HEAD~1 -f
+  git clean -fd
+  ./buildconf
+  sed -i "s/2.4.1 2.4.2/2.4.1 2.4.2 2.4.3/g" configure
+  ./configure
+
+  cp $OUTDIR/bic/src/ext/dom/* ext/dom/
+  cp $OUTDIR/bic/src/ext/simplexml/* ext/simplexml/
+  cp $OUTDIR/bic/src/ext/xmlreader/php_xmlreader.c ext/xmlreader/php_xmlreader.c
+  sed -i "s/#define PHP_ME_MAPPING  ZEND_ME_MAPPING/#define PHP_ME_MAPPING  ZEND_ME_MAPPING\n#define PHP_FE_END      ZEND_FE_END/g" main/php.h
+  sed -i "s/#define ZEND_ARG_INFO(pass_by_ref, name)/#define ZEND_FE_END            { NULL, NULL, NULL, 0, 0 }\n#define ZEND_ARG_INFO(pass_by_ref, name)/g" Zend/zend_API.h
+  sed -i "s/ZEND_MOD_OPTIONAL_EX(name, NULL, NULL)/ZEND_MOD_OPTIONAL_EX(name, NULL, NULL)\n#define ZEND_MOD_END { NULL, NULL, NULL, 0 }/g" Zend/zend_modules.h
 	
 }
 
@@ -183,6 +199,8 @@ elif [[ $1 == "php" ]]; then
     elif [[ $2 == "2012-03-12-7aefbf70a8-efc94f3115" ]] || 
          [[ $2 == "2011-11-11-fcbfbea8d2-c1e510aea8" ]] ||
          [[ $2 == "2011-11-08-c3e56a152c-3598185a74" ]] ; then
+      checkout_php_parent_d
+    else
       echo "Not supported"
       exit
     fi
