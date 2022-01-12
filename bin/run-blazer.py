@@ -25,8 +25,9 @@ def run_blazer(args, timestamp, project, case):
     cmd = [
         BLAZER_BIN, '-timestamp', timestamp, '-default_rule_prob',
         args.default_rule_prob, '-default_rule_prob2', args.default_rule_prob2,
-        '-default_edb_prob', args.default_edb_prob, '-default_obs_prob',
-        args.default_obs_prob, '-eps', args.eps, '-parent_dir',
+        '-default_edb_prob', args.default_edb_prob, '-default_obsold_prob',
+        args.default_obsold_prob, '-default_nc_obsold_prob',
+        args.default_nc_obsold_prob, '-eps', args.eps, '-parent_dir',
         os.path.join(OUTPUT_DIR, project, case, 'parent', 'sparrow-out'),
         os.path.join(OUTPUT_DIR, project, case, 'bic', 'sparrow-out')
     ]
@@ -79,7 +80,8 @@ def main():
     parser.add_argument('--default_rule_prob', type=str, default="0.99")
     parser.add_argument('--default_rule_prob2', type=str, default="0.5")
     parser.add_argument('--default_edb_prob', type=str, default="0.99")
-    parser.add_argument('--default_obs_prob', type=str, default="0.99")
+    parser.add_argument('--default_obsold_prob', type=str, default="0.01")
+    parser.add_argument('--default_nc_obsold_prob', type=str, default="0.5")
     parser.add_argument('--eps', type=str, default="0.01")
     parser.add_argument('--prune_cons', action='store_true')
     parser.add_argument('--timestamp', type=str)
