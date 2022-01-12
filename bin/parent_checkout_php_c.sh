@@ -17,7 +17,11 @@ sed -i "s/#define PHP_ME_MAPPING  ZEND_ME_MAPPING/#define PHP_ME_MAPPING  ZEND_M
 sed -i "s/#define ZEND_ARG_INFO(pass_by_ref, name)/#define ZEND_FE_END            { NULL, NULL, NULL, 0, 0 }\n#define ZEND_ARG_INFO(pass_by_ref, name)/g" Zend/zend_API.h
 sed -i "s/ZEND_MOD_OPTIONAL_EX(name, NULL, NULL)/ZEND_MOD_OPTIONAL_EX(name, NULL, NULL)\n#define ZEND_MOD_END { NULL, NULL, NULL, 0 }/g" Zend/zend_modules.h
 sed -i "s/ \$pharcmd"/"/g" /experiment/src/configure
-
+sed -i "s/alias(\"zend_error\"),//g" /experiment/src/Zend/zend.c
+sed -i "s/zend_error_noreturn/zend_error/g" /experiment/src/Zend/*.c
+sed -i "s/zend_error_noreturn/zend_error/g" /experiment/src/Zend/*.h
+sed -i "s/zend_error_noreturn/zend_error/g" /experiment/src/ext/standard/*.c
+sed -i "s/zend_error_noreturn/zend_error/g" /experiment/src/ext/standard/*.h
 cd /experiment/bic
 make clean && ./configure
 cd /experiment/src

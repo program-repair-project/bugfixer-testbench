@@ -54,6 +54,11 @@ bic_location = {
                         ("powm.c", 220), ("powm.c", 223), ("powm.c", 226),
                         ("powm.c", 231)],
         "14166-14167": [("gcdext.c", 56)]
+    },
+    "php": {
+        "2011-01-18-95388b7cda-b9b1fb1827": [("document.c", 2321),
+                                             ("document.c", 2324)],
+        "2011-02-21-2a6968e43a-ecb9d8019c": [("json.c", 417)]
     }
 }
 
@@ -64,6 +69,17 @@ sparrow_custom_option = {
             "-unsound_noreturn_function", "-unsound_skip_global_array_init",
             "100", "-top_location", "-max_pre_iter", "2",
             "-keep_unreachable_from", "zif_dom_document_save_html"
+        ],
+        "2011-02-21-2a6968e43a-ecb9d8019c": [
+            "-unsound_alloc", "-unsound_const_string", "-unsound_recursion",
+            "-unsound_noreturn_function", "-unsound_skip_global_array_init",
+            "100", "-top_location", "-max_pre_iter", "2",
+            "-keep_unreachable_from", "php_json_encode"
+        ],
+        "2011-03-11-d890ece3fc-6e74d95f34": [
+            "-unsound_alloc", "-unsound_const_string", "-unsound_recursion",
+            "-unsound_noreturn_function", "-unsound_skip_global_array_init",
+            "100", "-top_location", "-max_pre_iter", "2"
         ]
     }
 }

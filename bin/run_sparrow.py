@@ -123,6 +123,35 @@ def run_transform(works):
                 cmd = "sed -e 's/alias(\"zend_error\"),//g' -i {}".format(file)
                 run_cmd(cmd, shell=True)
 
+        elif project == "php" and case == "2011-02-21-2a6968e43a-ecb9d8019c":
+            for ver in ["parent", "bic"]:
+                file = os.path.join(outpath, ver, "smake-out",
+                                    "0048.apprentice.o.i")
+                cmd = "sed '13149,122596d' -i {}".format(file)
+                print(cmd)
+                run_cmd(cmd, shell=True)
+                file = os.path.join(outpath, ver, "smake-out",
+                                    "0004.parse_tz.o.i")
+                cmd = "sed '5138,22667d' -i {}".format(file)
+                run_cmd(cmd, shell=True)
+                file = os.path.join(outpath, ver, "smake-out", "012c.zend.o.i")
+                cmd = "sed -e 's/alias(\"zend_error\"),//g' -i {}".format(file)
+                run_cmd(cmd, shell=True)
+        elif project == "php" and case == "2011-03-11-d890ece3fc-6e74d95f34":
+            for ver in ["parent", "bic"]:
+                file = os.path.join(outpath, ver, "smake-out",
+                                    "0048.apprentice.o.i")
+                cmd = "sed '13179,122627d' -i {}".format(file)
+                print(cmd)
+                run_cmd(cmd, shell=True)
+                file = os.path.join(outpath, ver, "smake-out",
+                                    "0004.parse_tz.o.i")
+                cmd = "sed '5139,22631d' -i {}".format(file)
+                run_cmd(cmd, shell=True)
+                file = os.path.join(outpath, ver, "smake-out", "012c.zend.o.i")
+                cmd = "sed -e 's/alias(\"zend_error\"),//g' -i {}".format(file)
+                run_cmd(cmd, shell=True)
+
 
 def get_target_files(project, case, version):
     smake_outpath = os.path.join(PROJECT_HOME, "output", project, case,
@@ -133,8 +162,7 @@ def get_target_files(project, case, version):
     target_files = []
     for filename in open(coverage_file, 'r'):
         filename = os.path.splitext(filename.strip())[0]
-        target_files += glob.glob(smake_outpath + '/*' + filename + '*.i')
-
+        target_files += glob.glob(smake_outpath + '/*.' + filename + '.o.i')
     return target_files
 
 
@@ -168,8 +196,7 @@ def run_sparrow(works):
             if project in sparrow_custom_option and case in sparrow_custom_option[
                     project]:
                 cmd += sparrow_custom_option[project][case]
-
-            benchmark
+            target_files = list(set(target_files))
             cmd += target_files
 
             print("[*] Executing: Sparrow for %s" % project + "-" + case +

@@ -24,6 +24,11 @@ sed -i "s/outbuf->buffer->content/xmlOutputBufferGetContent(outbuf)/g" ext/simpl
 sed -i "s/outbuf->buffer->use/xmlOutputBufferGetSize(outbuf)/g" ext/simplexml/simplexml.c
 git checkout -- ext/simplexml/sxe.c
 sed -i "s/ \$pharcmd"/"/g" /experiment/src/configure
+sed -i "s/alias(\"zend_error\"),//g" /experiment/src/Zend/zend.c
+sed -i "s/zend_error_noreturn/zend_error/g" /experiment/src/Zend/*.c
+sed -i "s/zend_error_noreturn/zend_error/g" /experiment/src/Zend/*.h
+sed -i "s/zend_error_noreturn/zend_error/g" /experiment/src/ext/standard/*.c
+sed -i "s/zend_error_noreturn/zend_error/g" /experiment/src/ext/standard/*.h
 cd /experiment/bic
 make clean && ./configure
 cd /experiment/src

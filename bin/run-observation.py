@@ -79,8 +79,12 @@ def run_one_observe(project, case, engine):
             ]
         elif project == 'php':
             run_cmd_and_check([
-                'docker', 'exec', f'{docker_id}', 'sed', '-i',
-                's/ \$pharcmd"/"/g', '/experiment/src/configure'
+                'docker', 'cp', './bin/transform_php.sh',
+                f'{docker_id}:/experiment'
+            ])
+            run_cmd_and_check([
+                'docker', 'exec', f'{docker_id}',
+                '/experiment/transform_php.sh'
             ])
             if case in [
                     "2011-01-18-95388b7cda-b9b1fb1827",
@@ -129,7 +133,7 @@ def run_one_observe(project, case, engine):
     if project == 'php':
         cmd = [
             'docker', 'exec', f'{docker_id}', '/bugfixer/localizer/main.exe',
-            '-engine', engine, '-bic', 'no_seg', '.'
+            '-engine', engine, '-bic', '-no_seg', '.'
         ]
     else:
         cmd = [
@@ -155,12 +159,22 @@ def run_one_observe(project, case, engine):
                           stdout=subprocess.DEVNULL,
                           stderr=subprocess.DEVNULL)
     else:
-        for from_file, to_file in [
-            ('localizer-out/coverage_bic.txt', 'bic/sparrow-out/coverage.txt'),
+        engine_list = []
+        if engine == 'all':
+            engine_list = ["prophet", "ochiai", "jaccard", "tarantula"]
+        else:
+            engine_list.append(engine)
+
+        cov_file_list = []
+        for e in engine_list:
+            cov_file_list.append(('localizer-out/coverage_' + e + '_bic.txt',
+                                  'bic/sparrow-out/coverage_' + e + '.txt'))
+
+        for from_file, to_file in (cov_file_list + [
             ('localizer-out/coverage_parent.txt',
              'parent/sparrow-out/coverage.txt'),
             ('line_matching.json', 'bic/sparrow-out/line-matching.json'),
-        ]:
+        ]):
             run_cmd_and_check([
                 'docker', 'cp', f'{docker_id}:/experiment/{from_file}',
                 f'{OUTPUT_DIR}/{project}/{case}/{to_file}'
