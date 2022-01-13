@@ -23,11 +23,12 @@ logging.basicConfig(level=logging.INFO, \
 
 def run_blazer(args, timestamp, project, case):
     cmd = [
-        BLAZER_BIN, '-timestamp', timestamp, '-default_rule_prob',
-        args.default_rule_prob, '-default_rule_prob2', args.default_rule_prob2,
-        '-default_edb_prob', args.default_edb_prob, '-default_obsold_prob',
-        args.default_obsold_prob, '-default_nc_obsold_prob',
-        args.default_nc_obsold_prob, '-eps', args.eps, '-parent_dir',
+        BLAZER_BIN, '-timestamp', timestamp, '-engine', args.engine,
+        '-default_rule_prob', args.default_rule_prob, '-default_rule_prob2',
+        args.default_rule_prob2, '-default_edb_prob', args.default_edb_prob,
+        '-default_obsold_prob', args.default_obsold_prob,
+        '-default_nc_obsold_prob', args.default_nc_obsold_prob, '-eps',
+        args.eps, '-parent_dir',
         os.path.join(OUTPUT_DIR, project, case, 'parent', 'sparrow-out'),
         os.path.join(OUTPUT_DIR, project, case, 'bic', 'sparrow-out')
     ]
@@ -72,6 +73,12 @@ def main():
     parser = argparse.ArgumentParser(description='Run Blazer')
     parser.add_argument('-p', '--project', type=str, default="all")
     parser.add_argument('-c', '--case', type=str)
+    parser.add_argument(
+        '-e',
+        '--engine',
+        type=str,
+        choices=['tarantula', 'ochiai', 'jaccard', 'prophet', 'unival', 'all'],
+        default='tarantula')
     parser.add_argument('-g', '--debug', action='store_true', default=False)
     parser.add_argument('-s',
                         '--soft_disj',
