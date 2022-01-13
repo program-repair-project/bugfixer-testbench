@@ -70,7 +70,7 @@ def run_one(project, case):
                              reverse=True)
     with open(COV_PATH, 'w') as result_file:
         for loc, score in loc_score_assoc:
-            result_file.write(f'{loc},0,0,{score}\n')
+            result_file.write(f'{loc},1,1,{score}\n')
 
 
 def run(args):
