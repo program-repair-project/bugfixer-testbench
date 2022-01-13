@@ -108,47 +108,85 @@ def run_transform(works):
         case = docker_id[len(project) + 1:]
         outpath = os.path.join(PROJECT_HOME, "output", project, case)
 
-        if project == "php" and case == "2011-01-18-95388b7cda-b9b1fb1827":
+        if project == "php":
             for ver in ["parent", "bic"]:
-                file = os.path.join(outpath, ver, "smake-out",
-                                    "0048.apprentice.o.i")
-                cmd = "sed '13511,122959d' -i {}".format(file)
-                print(cmd)
-                run_cmd(cmd, shell=True)
-                file = os.path.join(outpath, ver, "smake-out",
-                                    "0004.parse_tz.o.i")
-                cmd = "sed '5147,22843d' -i {}".format(file)
-                run_cmd(cmd, shell=True)
-                file = os.path.join(outpath, ver, "smake-out", "010e.zend.o.i")
-                cmd = "sed -e 's/alias(\"zend_error\"),//g' -i {}".format(file)
+                process = subprocess.Popen([
+                    'find',
+                    os.path.join(outpath, ver, "smake-out"), '-name',
+                    '*.apprentice.o.i'
+                ],
+                                           stdout=subprocess.PIPE)
+                out, _ = process.communicate()
+                file_name = out.decode().split("/")[-1].strip()
+                file = os.path.join(outpath, ver, "smake-out", file_name)
+
+                process = subprocess.run([
+                    'grep', '-n', 'const unsigned char php_magic_database',
+                    file
+                ],
+                                         capture_output=True,
+                                         text=True)
+                out = process.stdout
+                start_index = str(int(out.split(":")[0]) + 5)
+
+                process = subprocess.run([
+                    'grep', '-n',
+                    "0x3B, 0x7B, 0x3D, 0x5D, 0x00, 0x00, 0x00, 0x00, 0x50, 0x65, 0x72, 0x6C, 0x35, 0x20, 0x6D, 0x6F,",
+                    file
+                ],
+                                         capture_output=True,
+                                         text=True)
+                out = process.stdout
+                end_index = str(int(out.split(":")[0]) - 5)
+
+                cmd = "sed '" + start_index + "," + end_index + "d' -i {}".format(
+                    file)
                 run_cmd(cmd, shell=True)
 
-        elif project == "php" and case == "2011-02-21-2a6968e43a-ecb9d8019c":
-            for ver in ["parent", "bic"]:
-                file = os.path.join(outpath, ver, "smake-out",
-                                    "0048.apprentice.o.i")
-                cmd = "sed '13149,122596d' -i {}".format(file)
-                print(cmd)
+                process = subprocess.run([
+                    'find',
+                    os.path.join(outpath, ver, "smake-out"), '-name',
+                    '*.parse_tz.o.i'
+                ],
+                                         capture_output=True,
+                                         text=True)
+                out = process.stdout
+                file_name = out.split("/")[-1].strip()
+                file = os.path.join(outpath, ver, "smake-out", file_name)
+
+                process = subprocess.run([
+                    'grep', '-n',
+                    "const unsigned char timelib_timezone_db_data_builtin",
+                    file
+                ],
+                                         capture_output=True,
+                                         text=True)
+                out = process.stdout
+                start_index = str(int(out.split(":")[0]) + 5)
+
+                process = subprocess.run([
+                    'grep', '-n', "const timelib_tzdb timezonedb_builtin =",
+                    file
+                ],
+                                         capture_output=True,
+                                         text=True)
+                out = process.stdout
+                end_index = str(int(out.split(":")[0]) - 7)
+
+                cmd = "sed '" + start_index + "," + end_index + "d' -i {}".format(
+                    file)
                 run_cmd(cmd, shell=True)
-                file = os.path.join(outpath, ver, "smake-out",
-                                    "0004.parse_tz.o.i")
-                cmd = "sed '5138,22667d' -i {}".format(file)
-                run_cmd(cmd, shell=True)
-                file = os.path.join(outpath, ver, "smake-out", "012c.zend.o.i")
-                cmd = "sed -e 's/alias(\"zend_error\"),//g' -i {}".format(file)
-                run_cmd(cmd, shell=True)
-        elif project == "php" and case == "2011-03-11-d890ece3fc-6e74d95f34":
-            for ver in ["parent", "bic"]:
-                file = os.path.join(outpath, ver, "smake-out",
-                                    "0048.apprentice.o.i")
-                cmd = "sed '13179,122627d' -i {}".format(file)
-                print(cmd)
-                run_cmd(cmd, shell=True)
-                file = os.path.join(outpath, ver, "smake-out",
-                                    "0004.parse_tz.o.i")
-                cmd = "sed '5139,22631d' -i {}".format(file)
-                run_cmd(cmd, shell=True)
-                file = os.path.join(outpath, ver, "smake-out", "012c.zend.o.i")
+
+                process = subprocess.run([
+                    'find',
+                    os.path.join(outpath, ver, "smake-out"), '-name',
+                    '*.zend.o.i'
+                ],
+                                         capture_output=True,
+                                         text=True)
+                out = process.stdout
+                file_name = out.split("/")[-1].strip()
+                file = os.path.join(outpath, ver, "smake-out", file_name)
                 cmd = "sed -e 's/alias(\"zend_error\"),//g' -i {}".format(file)
                 run_cmd(cmd, shell=True)
 
