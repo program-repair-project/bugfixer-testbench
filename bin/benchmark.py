@@ -63,6 +63,47 @@ bic_location = {
     }
 }
 
+faulty_function = {
+    "libtiff": {
+        "2005-12-14-6746b87-0d3d51d":
+        ["cpContig2ContigByRow", "cpDecodedStrips"],
+        "2005-12-21-3b848a7-3edb9cd": ["TIFFReadDirectory"],
+        "2006-02-23-b2ce5d8-207c78a": ["_TIFFWriteDirectory"],
+        "2006-03-03-a72cf60-0a36d7f": ["TIFFFetchData"],
+        "2007-08-24-827b6bc-22da1d6": ["_TIFFMergeFields"],
+        "2007-11-02-371336d-865f7b2": ["TIFFWriteDirectorySec"],
+        "2008-12-30-362dee5-565eaa2":
+        ["TIFFWriteDirectoryTagSubifd", "cpTag", "generateThumbnail"],
+        "2009-02-05-764dbba-2e42d63": ["loadImage"],
+        "2009-06-30-b44af47-e0b51f3": ["processCompressOptions"],
+        "2010-11-27-eb326f9-eec7ec0": ["main"],
+        "2010-12-13-96a5fb4-bdba15c": ["main", "getCropOffsets"]
+    },
+    "gmp": {
+        "13420-13421": ["mpn_powm"],
+        "14166-14167": ["mpz_gcdext"]
+    },
+    "php": {
+        "2011-01-18-95388b7cda-b9b1fb1827": ["zif_dom_document_save_html"],
+        "2011-02-21-2a6968e43a-ecb9d8019c": ["json_escape_string"],
+        "2011-03-11-d890ece3fc-6e74d95f34": ["php_url_parse_ex"],
+        "2011-03-27-11efb7295e-f7b7b6aa9e": [
+            "construction_wrapper", "construction_wrapper",
+            "spl_filesystem_object_new_ex"
+        ],
+        "2011-04-07-d3274b7f20-77ed819430": ["spl_array_unset_dimension_ex"],
+        "2011-10-31-c4eb5f2387-2e5d5e5ac6": ["_object_and_properties_init"],
+        "2011-11-08-c3e56a152c-3598185a74": ["is_a_impl"],
+        "2011-11-11-fcbfbea8d2-c1e510aea8":
+        ["zim_spl_SplFileInfo_getLinkTarget"],
+        "2011-11-19-eeba0b5681-f330c8ab4e": ["phar_open_from_fp"],
+        "2011-12-04-1e6a82a1cf-dfa08dc325": ["php_filter_validate_email"],
+        "2012-03-08-0169020e49-cdc512afb3":
+        ["php_stream_display_wrapper_errors"],
+        "2012-03-12-7aefbf70a8-efc94f3115": ["traverse_for_entities"]
+    }
+}
+
 sparrow_custom_option = {
     "php": {
         "2011-01-18-95388b7cda-b9b1fb1827": [
