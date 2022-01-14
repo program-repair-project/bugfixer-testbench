@@ -4,7 +4,7 @@ import argparse
 import subprocess
 import os
 import logging
-from benchmark import benchmark
+from benchmark import benchmark, faulty_function
 
 PROJECT_HOME = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 RUN_DOCKER_SCRIPT = os.path.join(PROJECT_HOME,
@@ -19,6 +19,7 @@ logging.basicConfig(
 
 
 def run_one_observe(project, case, engine):
+
     def run_cmd_and_check(cmd,
                           *,
                           capture_output=False,
@@ -58,8 +59,15 @@ def run_one_observe(project, case, engine):
         logging.error(f'Cannot find container_id of {project}:{case}')
         return
 
-    # copy scripts
-    if engine != 'unival':
+    # copy file and scripts
+    if engine == 'unival':
+        ff_path = os.path.join(OUTPUT_DIR, project, case, 'faulty_func.txt')
+        with open(ff_path, 'w') as fff:
+            fff.writelines(
+                map(lambda s: s + '\n', faulty_function[project][case]))
+        run_cmd_and_check(
+            ['docker', 'cp', ff_path, f'{docker_id}:/experiment/'])
+    else:
         run_cmd_and_check([
             'docker', 'cp', './bin/line_matching.py',
             f'{docker_id}:/experiment'
@@ -82,10 +90,8 @@ def run_one_observe(project, case, engine):
                 'docker', 'cp', './bin/transform_php.sh',
                 f'{docker_id}:/experiment'
             ])
-            run_cmd_and_check([
-                'docker', 'exec', f'{docker_id}',
-                '/experiment/transform_php.sh'
-            ])
+            run_cmd_and_check(
+                ['docker', 'exec', docker_id, '/experiment/transform_php.sh'])
             if case in [
                     "2011-01-18-95388b7cda-b9b1fb1827",
                     "2011-02-21-2a6968e43a-ecb9d8019c",
