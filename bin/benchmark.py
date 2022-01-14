@@ -59,7 +59,11 @@ bic_location = {
         "2011-01-18-95388b7cda-b9b1fb1827": [("document.c", 2321),
                                              ("document.c", 2324)],
         "2011-02-21-2a6968e43a-ecb9d8019c": [("json.c", 417)],
-        "2011-03-11-d890ece3fc-6e74d95f34": [("url.c", 301)]
+        "2011-03-11-d890ece3fc-6e74d95f34": [("url.c", 301)],
+        "2011-03-27-11efb7295e-f7b7b6aa9e": [("php_spl.c", 818),
+                                             ("php_spl.c", 831),
+                                             ("spl_directory.c", 154)],
+        "2011-12-04-1e6a82a1cf-dfa08dc325": [("logical_filters.c", 525)]
     }
 }
 
@@ -125,26 +129,16 @@ sparrow_custom_option = {
             "-keep_unreachable_from", "php_url_parse_ex"
         ],
         "2011-03-27-11efb7295e-f7b7b6aa9e": [
-            "-unsound_alloc",
-            "-unsound_const_string",
-            "-unsound_recursion",
-            "-unsound_noreturn_function",
-            "-unsound_skip_global_array_init",
-            "100",
-            "-top_location",
-            "-max_pre_iter",
-            "2",
+            "-unsound_alloc", "-unsound_const_string", "-unsound_recursion",
+            "-unsound_noreturn_function", "-unsound_skip_global_array_init",
+            "100", "-top_location", "-max_pre_iter", "2",
+            "-keep_unreachable_from", "construction_wrapper"
         ],
         "2011-04-07-d3274b7f20-77ed819430": [
-            "-unsound_alloc",
-            "-unsound_const_string",
-            "-unsound_recursion",
-            "-unsound_noreturn_function",
-            "-unsound_skip_global_array_init",
-            "100",
-            "-top_location",
-            "-max_pre_iter",
-            "2",
+            "-unsound_alloc", "-unsound_const_string", "-unsound_recursion",
+            "-unsound_noreturn_function", "-unsound_skip_global_array_init",
+            "100", "-top_location", "-max_pre_iter", "2",
+            "-keep_unreachable_from", "spl_array_unset_dimension_ex"
         ],
         "2011-10-31-c4eb5f2387-2e5d5e5ac6": [
             "-unsound_alloc",
@@ -202,15 +196,10 @@ sparrow_custom_option = {
             "2",
         ],
         "2011-12-04-1e6a82a1cf-dfa08dc325": [
-            "-unsound_alloc",
-            "-unsound_const_string",
-            "-unsound_recursion",
-            "-unsound_noreturn_function",
-            "-unsound_skip_global_array_init",
-            "100",
-            "-top_location",
-            "-max_pre_iter",
-            "2",
+            "-unsound_alloc", "-unsound_const_string", "-unsound_recursion",
+            "-unsound_noreturn_function", "-unsound_skip_global_array_init",
+            "100", "-top_location", "-max_pre_iter", "2",
+            "-keep_unreachable_from", "php_filter_validate_email"
         ],
         "2012-03-08-0169020e49-cdc512afb3": [
             "-unsound_alloc",
