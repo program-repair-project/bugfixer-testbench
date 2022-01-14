@@ -20,7 +20,6 @@ logging.basicConfig(
 
 
 def run_one_observe(project, case, engine):
-
     def run_cmd_and_check(cmd,
                           *,
                           capture_output=False,
@@ -147,7 +146,7 @@ def run_one_observe(project, case, engine):
             'docker', 'exec', f'{docker_id}', '/bugfixer/localizer/main.exe',
             '-engine', engine, '-bic', '.'
         ]
-    run_cmd_and_check(cmd, stdout=DEVNULL)
+    run_cmd_and_check(cmd)
 
     # make output directories
     os.makedirs(f'{OUTPUT_DIR}/{project}/{case}/bic/sparrow-out',
