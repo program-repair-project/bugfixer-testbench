@@ -10,8 +10,8 @@ OUT_DIR = os.path.join(PROJECT_HOME, 'output')
 
 
 def print_one_result(project, case):
-    OBS_PATH = os.path.join(OUT_DIR, project, case, 'unival', 'unival',
-                            'observation.txt')
+    OBS_PATH = os.path.join(OUT_DIR, project, case, 'bic', 'sparrow-out',
+                            'coverage_unival.txt')
     search_term_list = map(lambda l: f'{l[0]}:{l[1]}',
                            bic_location[project][case])
     rank = None
