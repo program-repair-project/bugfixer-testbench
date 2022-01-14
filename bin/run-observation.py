@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
+from asyncio.subprocess import DEVNULL
 import subprocess
 import os
 import logging
@@ -146,7 +147,7 @@ def run_one_observe(project, case, engine):
             'docker', 'exec', f'{docker_id}', '/bugfixer/localizer/main.exe',
             '-engine', engine, '-bic', '.'
         ]
-    run_cmd_and_check(cmd)
+    run_cmd_and_check(cmd, stdout=DEVNULL)
 
     # make output directories
     os.makedirs(f'{OUTPUT_DIR}/{project}/{case}/bic/sparrow-out',
