@@ -163,8 +163,8 @@ def extract_one_coverage(project, case, engine):
     run_cmd_and_check(cmd)
 
     # make output directories
-    BIC_PATH.mkdir(exist_ok=True)
-    PARENT_PATH.mkdir(exist_ok=True)
+    BIC_PATH.mkdir(parents=True, exist_ok=True)
+    PARENT_PATH.mkdir(parents=True, exist_ok=True)
     (PROJECT_HOME / 'data' / 'coverage_file' / project /
      case).mkdir(exist_ok=True)
 

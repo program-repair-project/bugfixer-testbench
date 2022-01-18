@@ -67,9 +67,7 @@ def run_one_observe(project, case, engine):
             run_cmd_and_check([
                 str(PROJECT_HOME / 'bin' / 'coverage.py'), '-p', project, '-c',
                 case, '-e', engine
-            ],
-                              stdout=subprocess.DEVNULL,
-                              stderr=subprocess.DEVNULL)
+            ])
 
         OBS_PATH = COV_PATH.parent / f'observation_{engine}.txt'
         run_cmd_and_check(
