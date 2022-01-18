@@ -60,24 +60,30 @@ def run_one_observe(project, case, engine):
                           stdout=subprocess.DEVNULL,
                           stderr=subprocess.DEVNULL)
     else:
-        COV_PATH = OUTPUT_DIR / project / case / 'bic' / 'sparrow-out' / f'coverage_{engine}.txt'
-        if not COV_PATH.exists():
-            logging.info(
-                "There is no coverage file. Start extracting it first.")
-            run_cmd_and_check([
-                str(PROJECT_HOME / 'bin' / 'coverage.py'), '-p', project, '-c',
-                case, '-e', engine
-            ])
+        engine_list = []
+        if engine == 'all':
+            engine_list = ["prophet", "ochiai", "jaccard", "tarantula"]
+        else:
+            engine_list.append(engine)
+        for engine in engine_list:
+            COV_PATH = OUTPUT_DIR / project / case / 'bic' / 'sparrow-out' / f'coverage_{engine}.txt'
+            if not COV_PATH.exists():
+                logging.info(
+                    "There is no coverage file. Start extracting it first.")
+                run_cmd_and_check([
+                    str(PROJECT_HOME / 'bin' / 'coverage.py'), '-p', project,
+                    '-c', case, '-e', engine
+                ])
 
-        OBS_PATH = COV_PATH.parent / f'observation_{engine}.txt'
-        run_cmd_and_check(
-            ['cp', str(COV_PATH), str(OBS_PATH)],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL)
-        run_cmd_and_check(['sed', '-i', 's/,.*,.*,/,/g',
-                           str(OBS_PATH)],
-                          stdout=subprocess.DEVNULL,
-                          stderr=subprocess.DEVNULL)
+            OBS_PATH = COV_PATH.parent / f'observation_{engine}.txt'
+            run_cmd_and_check(
+                ['cp', str(COV_PATH), str(OBS_PATH)],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL)
+            run_cmd_and_check(['sed', '-i', 's/,.*,.*,/,/g',
+                               str(OBS_PATH)],
+                              stdout=subprocess.DEVNULL,
+                              stderr=subprocess.DEVNULL)
 
 
 def run_observe(args):
