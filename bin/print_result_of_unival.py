@@ -47,7 +47,7 @@ def run_one(project, case):
     logging.info(f"Printing observation result: {project}-{case}")
     RESULT_PATH = os.path.join(OUT_DIR, project, case, 'unival', 'unival')
     COV_PATH = os.path.join(OUT_DIR, project, case, 'bic', 'sparrow-out',
-                            'coverage_unival.txt')
+                            'observation_unival.txt')
     with open(os.path.join(RESULT_PATH, 'resultUniVal.csv'),
               newline='') as csvfile:
         result_unival = csv.reader(csvfile, delimiter=',')
@@ -70,7 +70,7 @@ def run_one(project, case):
                              reverse=True)
     with open(COV_PATH, 'w') as result_file:
         for loc, score in loc_score_assoc:
-            result_file.write(f'{loc},1,1,{score}\n')
+            result_file.write(f'{loc},{score}\n')
 
 
 def run(args):

@@ -6,11 +6,10 @@ import subprocess
 import os
 import logging
 from benchmark import benchmark, faulty_function
+from pathlib import Path
 
-PROJECT_HOME = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-RUN_DOCKER_SCRIPT = os.path.join(PROJECT_HOME,
-                                 'bin/run-docker-differential.py')
-OUTPUT_DIR = os.path.join(PROJECT_HOME, 'output')
+PROJECT_HOME = Path(__file__).resolve().parent.parent
+OUTPUT_DIR = PROJECT_HOME / 'output'
 
 logging.basicConfig(
     level=logging.INFO,
@@ -20,6 +19,7 @@ logging.basicConfig(
 
 
 def run_one_observe(project, case, engine):
+
     def run_cmd_and_check(cmd,
                           *,
                           capture_output=False,
@@ -37,174 +37,47 @@ def run_one_observe(project, case, engine):
             logging.error(f'{project}-{case} failure: {" ".join(cmd)}')
         return process
 
-    print("[*] Extracting observation of : %s-%s" % (project, case))
-
-    # run docker
-    run_cmd_and_check([f'{RUN_DOCKER_SCRIPT}', f'{project}-{case}', '-d'],
-                      stdout=subprocess.DEVNULL,
-                      stderr=subprocess.DEVNULL)
-
-    # find docker container ID
-    docker_ps = run_cmd_and_check(['docker', 'ps'],
-                                  capture_output=True,
-                                  text=True)
-    dockers = docker_ps.stdout.split('\n')[1:]
-    docker_id = None
-    for d in dockers:
-        container_id, image = d.split()[:2]
-        if image == f'prosyslab/manybugs-differential:{project}-{case}':
-            docker_id = container_id
-            break
-    if not docker_id:
-        logging.error(f'Cannot find container_id of {project}:{case}')
-        return
-
-    # copy file and scripts
+    # run unival_backend if engine is unival
     if engine == 'unival':
-        ff_path = os.path.join(OUTPUT_DIR, project, case, 'faulty_func.txt')
-        with open(ff_path, 'w') as fff:
-            fff.writelines(
-                map(lambda s: s + '\n', faulty_function[project][case]))
-        run_cmd_and_check(
-            ['docker', 'cp', ff_path, f'{docker_id}:/experiment/'])
-    else:
-        run_cmd_and_check([
-            'docker', 'cp', './bin/line_matching.py',
-            f'{docker_id}:/experiment'
-        ],
-                          stdout=subprocess.DEVNULL,
-                          stderr=subprocess.DEVNULL)
-
-        if project == 'libtiff':
-            cmd = [
-                'docker', 'cp', './bin/parent_checkout_libtiff.sh',
-                f'{docker_id}:/experiment/parent_checkout.sh'
-            ]
-        elif project == 'gmp':
-            cmd = [
-                'docker', 'cp', './bin/parent_checkout_gmp.sh',
-                f'{docker_id}:/experiment/parent_checkout.sh'
-            ]
-        elif project == 'php':
+        UNIVAL_RESULT_PATH = OUTPUT_DIR / project / case / 'unival'
+        if not UNIVAL_RESULT_PATH.exists():
+            logging.info("Start running UniVal frontend first.")
             run_cmd_and_check([
-                'docker', 'cp', './bin/transform_php.sh',
-                f'{docker_id}:/experiment'
+                str(PROJECT_HOME / 'bin' / 'coverage.py'), '-p', project, '-c',
+                case, '-e', engine
             ])
-            run_cmd_and_check(
-                ['docker', 'exec', docker_id, '/experiment/transform_php.sh'])
-            if case in [
-                    "2011-01-18-95388b7cda-b9b1fb1827",
-                    "2011-02-21-2a6968e43a-ecb9d8019c",
-                    "2011-03-11-d890ece3fc-6e74d95f34",
-                    "2011-03-27-11efb7295e-f7b7b6aa9e",
-                    "2011-04-07-d3274b7f20-77ed819430"
-            ]:
-                cmd = [
-                    'docker', 'cp', './bin/parent_checkout_php_a.sh',
-                    f'{docker_id}:/experiment/parent_checkout.sh'
-                ]
-            elif case in [
-                    "2011-10-31-c4eb5f2387-2e5d5e5ac6",
-                    "2011-11-08-0ac9b9b0ae-cacf363957",
-                    "2011-12-04-1e6a82a1cf-dfa08dc325"
-            ]:
-                cmd = [
-                    'docker', 'cp', './bin/parent_checkout_php_b.sh',
-                    f'{docker_id}:/experiment/parent_checkout.sh'
-                ]
-            elif case in [
-                    "2011-11-19-eeba0b5681-f330c8ab4e",
-                    "2012-03-08-0169020e49-cdc512afb3"
-            ]:
-                cmd = [
-                    'docker', 'cp', './bin/parent_checkout_php_c.sh',
-                    f'{docker_id}:/experiment/parent_checkout.sh'
-                ]
-            elif case in [
-                    "2012-03-12-7aefbf70a8-efc94f3115",
-                    "2011-11-11-fcbfbea8d2-c1e510aea8",
-                    "2011-11-08-c3e56a152c-3598185a74"
-            ]:
-                cmd = [
-                    'docker', 'cp', './bin/parent_checkout_php_d.sh',
-                    f'{docker_id}:/experiment/parent_checkout.sh'
-                ]
-        else:
-            raise Exception(f'{project}-{case} is not supported currently')
-        run_cmd_and_check(cmd,
+
+        run_cmd_and_check([
+            str(PROJECT_HOME / 'bin' / 'unival_backend.py'), '-p', project,
+            '-c', case
+        ],
                           stdout=subprocess.DEVNULL,
                           stderr=subprocess.DEVNULL)
-
-    # run localizer
-    if project == 'php':
-        cmd = [
-            'docker', 'exec', f'{docker_id}', '/bugfixer/localizer/main.exe',
-            '-engine', engine, '-bic', '-no_seg', '.'
-        ]
-    else:
-        cmd = [
-            'docker', 'exec', f'{docker_id}', '/bugfixer/localizer/main.exe',
-            '-engine', engine, '-bic', '.'
-        ]
-    run_cmd_and_check(cmd)
-
-    # make output directories
-    os.makedirs(f'{OUTPUT_DIR}/{project}/{case}/bic/sparrow-out',
-                exist_ok=True)
-    os.makedirs(f'{OUTPUT_DIR}/{project}/{case}/parent/sparrow-out',
-                exist_ok=True)
-    os.makedirs(f'{PROJECT_HOME}/data/coverage_file/{project}/{case}',
-                exist_ok=True)
-
-    # copy output data
-    if engine == 'unival':
         run_cmd_and_check([
-            'docker', 'cp', f'{docker_id}:/experiment/localizer-out',
-            f'{OUTPUT_DIR}/{project}/{case}/unival'
+            str(PROJECT_HOME / 'bin' / 'print_result_of_unival.py'), '-p',
+            project, '-c', case
         ],
                           stdout=subprocess.DEVNULL,
                           stderr=subprocess.DEVNULL)
     else:
-        engine_list = []
-        if engine == 'all':
-            engine_list = ["prophet", "ochiai", "jaccard", "tarantula"]
-        else:
-            engine_list.append(engine)
-
-        cov_file_list = []
-        for e in engine_list:
-            cov_file_list.append(('localizer-out/coverage_' + e + '_bic.txt',
-                                  'bic/sparrow-out/coverage_' + e + '.txt'))
-
-        for from_file, to_file in (cov_file_list + [
-            ('localizer-out/coverage_parent.txt',
-             'parent/sparrow-out/coverage.txt'),
-            ('line_matching.json', 'bic/sparrow-out/line-matching.json'),
-        ]):
+        COV_PATH = OUTPUT_DIR / project / case / 'bic' / 'sparrow-out' / f'coverage_{engine}.txt'
+        if not COV_PATH.exists():
+            logging.info(
+                "There is no coverage file. Start extracting it first.")
             run_cmd_and_check([
-                'docker', 'cp', f'{docker_id}:/experiment/{from_file}',
-                f'{OUTPUT_DIR}/{project}/{case}/{to_file}'
+                str(PROJECT_HOME / 'bin' / 'coverage.py'), '-p', project, '-c',
+                case, '-e', engine
             ],
                               stdout=subprocess.DEVNULL,
                               stderr=subprocess.DEVNULL)
-        run_cmd_and_check([
-            'docker', 'cp',
-            f'{docker_id}:/experiment/localizer-out/coverage_file.txt',
-            f'{PROJECT_HOME}/data/coverage_file/{project}/{case}/coverage_file.txt'
-        ],
-                          stdout=subprocess.DEVNULL,
-                          stderr=subprocess.DEVNULL)
 
-    # docker kill
-    run_cmd_and_check(['docker', 'kill', f'{docker_id}'],
-                      stdout=subprocess.DEVNULL,
-                      stderr=subprocess.DEVNULL)
-
-    # run unival_backend if engine is unival
-    if engine == 'unival':
-        run_cmd_and_check([
-            f'{PROJECT_HOME}/bin/unival_backend.py', '-p', project, '-c', case
-        ],
+        OBS_PATH = COV_PATH.parent / f'observation_{engine}.txt'
+        run_cmd_and_check(
+            ['cp', str(COV_PATH), str(OBS_PATH)],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL)
+        run_cmd_and_check(['sed', '-i', 's/,.*,.*,/,/g',
+                           str(OBS_PATH)],
                           stdout=subprocess.DEVNULL,
                           stderr=subprocess.DEVNULL)
 
@@ -226,7 +99,7 @@ def run_observe(args):
 
 def main():
     parser = argparse.ArgumentParser(
-        description='Get coverage data of project-case')
+        description='Get observation data of project-case')
     parser.add_argument('-p', '--project', type=str)
     parser.add_argument('-c', '--case', type=str)
     parser.add_argument(

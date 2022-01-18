@@ -84,8 +84,8 @@ faulty_function = {
         "2010-12-13-96a5fb4-bdba15c": ["main", "getCropOffsets"]
     },
     "gmp": {
-        "13420-13421": ["mpn_powm"],
-        "14166-14167": ["mpz_gcdext"]
+        "13420-13421": ["__gmpn_powm"],
+        "14166-14167": ["__gmpz_gcdext"]
     },
     "php": {
         "2011-01-18-95388b7cda-b9b1fb1827": ["zif_dom_document_save_html"],
