@@ -65,8 +65,8 @@ def run_one_observe(project, case, engine):
             engine_list = ["prophet", "ochiai", "jaccard", "tarantula"]
         else:
             engine_list.append(engine)
-        for engine in engine_list:
-            COV_PATH = OUTPUT_DIR / project / case / 'bic' / 'sparrow-out' / f'coverage_{engine}.txt'
+        for e in engine_list:
+            COV_PATH = OUTPUT_DIR / project / case / 'bic' / 'sparrow-out' / f'coverage_{e}.txt'
             if not COV_PATH.exists():
                 logging.info(
                     "There is no coverage file. Start extracting it first.")
@@ -75,7 +75,7 @@ def run_one_observe(project, case, engine):
                     '-c', case, '-e', engine
                 ])
 
-            OBS_PATH = COV_PATH.parent / f'observation_{engine}.txt'
+            OBS_PATH = COV_PATH.parent / f'observation_{e}.txt'
             run_cmd_and_check(
                 ['cp', str(COV_PATH), str(OBS_PATH)],
                 stdout=subprocess.DEVNULL,
