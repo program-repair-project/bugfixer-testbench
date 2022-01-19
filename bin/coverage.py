@@ -160,7 +160,7 @@ def extract_one_coverage(project, case, engine, is_faulty_func=False):
             'docker', 'exec', f'{docker_id}', '/bugfixer/localizer/main.exe',
             '-engine', engine, '-bic', '.'
         ]
-    if faulty_func:
+    if is_faulty_func:
         cmd += ['-faulty_func']
     run_cmd_and_check(cmd)
 
