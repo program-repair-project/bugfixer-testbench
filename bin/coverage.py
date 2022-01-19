@@ -19,7 +19,7 @@ logging.basicConfig(
     datefmt="%H:%M:%S")
 
 
-def extract_one_coverage(project, case, engine):
+def extract_one_coverage(project, case, engine, is_faulty_func=False):
 
     def run_cmd_and_check(cmd,
                           *,
@@ -73,7 +73,7 @@ def extract_one_coverage(project, case, engine):
         return
 
     # copy file and scripts
-    if engine == 'unival':
+    if engine == 'unival' and is_faulty_func:
         ff_path = OUTPUT_DIR / project / case / 'faulty_func.txt'
         with ff_path.open(mode='w') as fff:
             fff.writelines(
@@ -160,6 +160,8 @@ def extract_one_coverage(project, case, engine):
             'docker', 'exec', f'{docker_id}', '/bugfixer/localizer/main.exe',
             '-engine', engine, '-bic', '.'
         ]
+    if faulty_func:
+        cmd += ['-faulty_func']
     run_cmd_and_check(cmd)
 
     # make output directories
@@ -218,18 +220,18 @@ def extract_one_coverage(project, case, engine):
 
 
 def extract_coverage(args):
-    project, case, engine = args.project, args.case, args.engine
+    project, case, engine, is_faulty_func = args.project, args.case, args.engine, args.faulty_func
 
     if project:
         if case:
-            extract_one_coverage(project, case, engine)
+            extract_one_coverage(project, case, engine, is_faulty_func)
         else:
             for case in benchmark[project]:
-                extract_one_coverage(project, case, engine)
+                extract_one_coverage(project, case, engine, is_faulty_func)
     else:
         for project in benchmark:
             for case in benchmark[project]:
-                extract_one_coverage(project, case, engine)
+                extract_one_coverage(project, case, engine, is_faulty_func)
 
 
 def main():
@@ -243,6 +245,10 @@ def main():
         type=str,
         choices=['tarantula', 'ochiai', 'jaccard', 'prophet', 'unival', 'all'],
         default='tarantula')
+    parser.add_argument('-f',
+                        '--faulty_func',
+                        action='store_true',
+                        default=False)
     args = parser.parse_args()
     extract_coverage(args)
 

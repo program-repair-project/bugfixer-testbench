@@ -38,6 +38,8 @@ def run_blazer(args, timestamp, project, case):
         cmd.append("-soft_disj")
     if args.prune_cons:
         cmd.append("-prune_cons")
+    if args.faulty_func:
+        cmd.append("-faulty_func")
     logging.info("Cmd: {}".format(" ".join(cmd)))
     return subprocess.Popen(cmd, stdout=subprocess.DEVNULL)
 
@@ -80,6 +82,10 @@ def main():
         choices=['tarantula', 'ochiai', 'jaccard', 'prophet', 'unival', 'all'],
         default='tarantula')
     parser.add_argument('-g', '--debug', action='store_true', default=False)
+    parser.add_argument('-f',
+                        '--faulty_func',
+                        action='store_true',
+                        default=False)
     parser.add_argument('-s',
                         '--soft_disj',
                         action='store_true',

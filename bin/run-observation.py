@@ -18,7 +18,7 @@ logging.basicConfig(
     datefmt="%H:%M:%S")
 
 
-def run_one_observe(project, case, engine):
+def run_one_observe(project, case, engine, is_faulty_func=False):
 
     def run_cmd_and_check(cmd,
                           *,
@@ -41,12 +41,15 @@ def run_one_observe(project, case, engine):
     if engine == 'unival':
         UNIVAL_RESULT_PATH = OUTPUT_DIR / project / case / 'unival'
         if not UNIVAL_RESULT_PATH.exists():
-            logging.info("Start running UniVal frontend first.")
-            run_cmd_and_check([
+            logging.info("Start running UniVal frontend first")
+            cmd = [
                 str(PROJECT_HOME / 'bin' / 'coverage.py'), '-p', project, '-c',
                 case, '-e', engine
-            ])
+            ]
+            cmd = cmd + ['-f'] if is_faulty_func else cmd
+            run_cmd_and_check(cmd)
 
+        logging.info("Start running UniVal backend")
         run_cmd_and_check([
             str(PROJECT_HOME / 'bin' / 'unival_backend.py'), '-p', project,
             '-c', case
@@ -69,7 +72,7 @@ def run_one_observe(project, case, engine):
             COV_PATH = OUTPUT_DIR / project / case / 'bic' / 'sparrow-out' / f'coverage_{e}.txt'
             if not COV_PATH.exists():
                 logging.info(
-                    "There is no coverage file. Start extracting it first.")
+                    "There is no coverage file. Start extracting it first")
                 run_cmd_and_check([
                     str(PROJECT_HOME / 'bin' / 'coverage.py'), '-p', project,
                     '-c', case, '-e', engine
@@ -87,18 +90,18 @@ def run_one_observe(project, case, engine):
 
 
 def run_observe(args):
-    project, case, engine = args.project, args.case, args.engine
+    project, case, engine, is_faulty_func = args.project, args.case, args.engine, args.faulty_func
 
     if project:
         if case:
-            run_one_observe(project, case, engine)
+            run_one_observe(project, case, engine, is_faulty_func)
         else:
             for case in benchmark[project]:
-                run_one_observe(project, case, engine)
+                run_one_observe(project, case, engine, is_faulty_func)
     else:
         for project in benchmark:
             for case in benchmark[project]:
-                run_one_observe(project, case, engine)
+                run_one_observe(project, case, engine, is_faulty_func)
 
 
 def main():
@@ -112,6 +115,10 @@ def main():
         type=str,
         choices=['tarantula', 'ochiai', 'jaccard', 'prophet', 'unival', 'all'],
         default='tarantula')
+    parser.add_argument('-f',
+                        '--faulty_func',
+                        action='store_true',
+                        default=False)
     args = parser.parse_args()
     run_observe(args)
 
