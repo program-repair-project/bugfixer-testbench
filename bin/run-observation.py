@@ -49,6 +49,9 @@ def run_one_observe(project, case, engine, is_faulty_func=False):
             cmd = cmd + ['-f'] if is_faulty_func else cmd
             run_cmd_and_check(cmd)
 
+        if (UNIVAL_RESULT_PATH / 'unival').exists():
+            logging.info("UniVal is already executed. Skip")
+            return
         logging.info("Start running UniVal backend")
         run_cmd_and_check([
             str(PROJECT_HOME / 'bin' / 'unival_backend.py'), '-p', project,
