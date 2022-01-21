@@ -249,7 +249,7 @@ php_blacklists = {
 }
 
 
-def run_one_localizer(project, case, engine):
+def run_one_localizer(args, project, case, engine):
     cmd = [f'{RUN_DOCKER_SCRIPT}', f'{project}-{case}', '-d']
     run_docker = subprocess.run(cmd)
     run_docker.check_returncode()
@@ -292,7 +292,7 @@ def run_one_localizer(project, case, engine):
     localizer_cmd = [
         'docker', 'exec', '-it', f'{docker_id}',
         '/bugfixer/localizer/main.exe', '-engine', engine
-    ] + options + ['/experiment']
+    ] + options + (['-gcov'] if args.gcov else []) + ['/experiment']
     localizer = subprocess.run(localizer_cmd)
     try:
         localizer.check_returncode()
@@ -333,24 +333,24 @@ def build_and_run(args):
         if case:
             if build_one(project, case):
                 if engine:
-                    run_one_localizer(project, case, engine)
+                    run_one_localizer(args, project, case, engine)
                 else:
-                    run_one_localizer(project, case, 'all')
+                    run_one_localizer(args, project, case, 'all')
         else:
             for case in bug_dict[project]:
                 if build_one(project, case):
                     if engine:
-                        run_one_localizer(project, case, engine)
+                        run_one_localizer(args, project, case, engine)
                     else:
-                        run_one_localizer(project, case, 'all')
+                        run_one_localizer(args, project, case, 'all')
     else:
         for project in bug_dict:
             for case in bug_dict[project]:
                 if build_one(project, case):
                     if engine:
-                        run_one_localizer(project, case, engine)
+                        run_one_localizer(args, project, case, engine)
                     else:
-                        run_one_localizer(project, case, 'all')
+                        run_one_localizer(args, project, case, 'all')
 
 
 def main():
@@ -359,6 +359,7 @@ def main():
     parser.add_argument('-p', '--project', type=str)
     parser.add_argument('-c', '--case', type=str)
     parser.add_argument('-e', '--engine', type=str)
+    parser.add_argument('-g', '--gcov', action="store_true", default=False)
     args = parser.parse_args()
     init(args)
     build_and_run(args)

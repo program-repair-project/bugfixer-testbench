@@ -18,7 +18,7 @@ logging.basicConfig(
     datefmt="%H:%M:%S")
 
 
-def run_one_observe(project, case, engine, is_faulty_func=False):
+def run_one_observe(args, project, case, engine, is_faulty_func=False):
 
     def run_cmd_and_check(cmd,
                           *,
@@ -76,10 +76,12 @@ def run_one_observe(project, case, engine, is_faulty_func=False):
             if not COV_PATH.exists():
                 logging.info(
                     "There is no coverage file. Start extracting it first")
-                run_cmd_and_check([
+                cmd = [
                     str(PROJECT_HOME / 'bin' / 'coverage.py'), '-p', project,
                     '-c', case, '-e', engine
-                ])
+                ]
+                cmd = cmd + (['-g'] if args.gcov else [])
+                run_cmd_and_check(cmd)
 
             OBS_PATH = COV_PATH.parent / f'observation_{e}.txt'
             run_cmd_and_check(
@@ -97,14 +99,14 @@ def run_observe(args):
 
     if project:
         if case:
-            run_one_observe(project, case, engine, is_faulty_func)
+            run_one_observe(args, project, case, engine, is_faulty_func)
         else:
             for case in benchmark[project]:
-                run_one_observe(project, case, engine, is_faulty_func)
+                run_one_observe(args, project, case, engine, is_faulty_func)
     else:
         for project in benchmark:
             for case in benchmark[project]:
-                run_one_observe(project, case, engine, is_faulty_func)
+                run_one_observe(args, project, case, engine, is_faulty_func)
 
 
 def main():
@@ -122,6 +124,7 @@ def main():
                         '--faulty_func',
                         action='store_true',
                         default=False)
+    parser.add_argument('-g', '--gcov', action='store_true', default=False)
     args = parser.parse_args()
     run_observe(args)
 

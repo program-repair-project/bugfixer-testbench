@@ -224,14 +224,16 @@ def extract_coverage(args):
 
     if project:
         if case:
-            extract_one_coverage(project, case, engine, is_faulty_func)
+            extract_one_coverage(args, project, case, engine, is_faulty_func)
         else:
             for case in benchmark[project]:
-                extract_one_coverage(project, case, engine, is_faulty_func)
+                extract_one_coverage(args, project, case, engine,
+                                     is_faulty_func)
     else:
         for project in benchmark:
             for case in benchmark[project]:
-                extract_one_coverage(project, case, engine, is_faulty_func)
+                extract_one_coverage(args, project, case, engine,
+                                     is_faulty_func)
 
 
 def main():
@@ -249,7 +251,10 @@ def main():
                         '--faulty_func',
                         action='store_true',
                         default=False)
-    args = parser.parse_args()
+    args = parser.parse_args('-g',
+                             '--gcov',
+                             action='store_true',
+                             default=False)
     extract_coverage(args)
 
 
