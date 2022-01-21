@@ -73,7 +73,7 @@ def extract_one_coverage(project, case, engine, is_faulty_func=False):
         return
 
     # copy file and scripts
-    if engine == 'unival' and is_faulty_func:
+    if is_faulty_func:
         ff_path = OUTPUT_DIR / project / case / 'faulty_func.txt'
         with ff_path.open(mode='w') as fff:
             fff.writelines(
@@ -81,73 +81,70 @@ def extract_one_coverage(project, case, engine, is_faulty_func=False):
         run_cmd_and_check(
             ['docker', 'cp',
              str(ff_path), f'{docker_id}:/experiment/'])
-    else:
-        run_cmd_and_check([
-            'docker', 'cp', './bin/line_matching.py',
-            f'{docker_id}:/experiment'
-        ],
-                          stdout=subprocess.DEVNULL,
-                          stderr=subprocess.DEVNULL)
+    run_cmd_and_check(
+        ['docker', 'cp', './bin/line_matching.py', f'{docker_id}:/experiment'],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL)
 
-        if project == 'libtiff':
+    if project == 'libtiff':
+        cmd = [
+            'docker', 'cp', './bin/parent_checkout_libtiff.sh',
+            f'{docker_id}:/experiment/parent_checkout.sh'
+        ]
+    elif project == 'gmp':
+        cmd = [
+            'docker', 'cp', './bin/parent_checkout_gmp.sh',
+            f'{docker_id}:/experiment/parent_checkout.sh'
+        ]
+    elif project == 'php':
+        run_cmd_and_check([
+            'docker', 'cp', './bin/transform_php.sh',
+            f'{docker_id}:/experiment'
+        ])
+        run_cmd_and_check(
+            ['docker', 'exec', docker_id, '/experiment/transform_php.sh'])
+        if case in [
+                "2011-01-18-95388b7cda-b9b1fb1827",
+                "2011-02-21-2a6968e43a-ecb9d8019c",
+                "2011-03-11-d890ece3fc-6e74d95f34",
+                "2011-03-27-11efb7295e-f7b7b6aa9e",
+                "2011-04-07-d3274b7f20-77ed819430"
+        ]:
             cmd = [
-                'docker', 'cp', './bin/parent_checkout_libtiff.sh',
+                'docker', 'cp', './bin/parent_checkout_php_a.sh',
                 f'{docker_id}:/experiment/parent_checkout.sh'
             ]
-        elif project == 'gmp':
+        elif case in [
+                "2011-10-31-c4eb5f2387-2e5d5e5ac6",
+                "2011-11-08-0ac9b9b0ae-cacf363957",
+                "2011-12-04-1e6a82a1cf-dfa08dc325"
+        ]:
             cmd = [
-                'docker', 'cp', './bin/parent_checkout_gmp.sh',
+                'docker', 'cp', './bin/parent_checkout_php_b.sh',
                 f'{docker_id}:/experiment/parent_checkout.sh'
             ]
-        elif project == 'php':
-            run_cmd_and_check([
-                'docker', 'cp', './bin/transform_php.sh',
-                f'{docker_id}:/experiment'
-            ])
-            run_cmd_and_check(
-                ['docker', 'exec', docker_id, '/experiment/transform_php.sh'])
-            if case in [
-                    "2011-01-18-95388b7cda-b9b1fb1827",
-                    "2011-02-21-2a6968e43a-ecb9d8019c",
-                    "2011-03-11-d890ece3fc-6e74d95f34",
-                    "2011-03-27-11efb7295e-f7b7b6aa9e",
-                    "2011-04-07-d3274b7f20-77ed819430"
-            ]:
-                cmd = [
-                    'docker', 'cp', './bin/parent_checkout_php_a.sh',
-                    f'{docker_id}:/experiment/parent_checkout.sh'
-                ]
-            elif case in [
-                    "2011-10-31-c4eb5f2387-2e5d5e5ac6",
-                    "2011-11-08-0ac9b9b0ae-cacf363957",
-                    "2011-12-04-1e6a82a1cf-dfa08dc325"
-            ]:
-                cmd = [
-                    'docker', 'cp', './bin/parent_checkout_php_b.sh',
-                    f'{docker_id}:/experiment/parent_checkout.sh'
-                ]
-            elif case in [
-                    "2011-11-19-eeba0b5681-f330c8ab4e",
-                    "2012-03-08-0169020e49-cdc512afb3"
-            ]:
-                cmd = [
-                    'docker', 'cp', './bin/parent_checkout_php_c.sh',
-                    f'{docker_id}:/experiment/parent_checkout.sh'
-                ]
-            elif case in [
-                    "2012-03-12-7aefbf70a8-efc94f3115",
-                    "2011-11-11-fcbfbea8d2-c1e510aea8",
-                    "2011-11-08-c3e56a152c-3598185a74"
-            ]:
-                cmd = [
-                    'docker', 'cp', './bin/parent_checkout_php_d.sh',
-                    f'{docker_id}:/experiment/parent_checkout.sh'
-                ]
-        else:
-            raise Exception(f'{project}-{case} is not supported currently')
-        run_cmd_and_check(cmd,
-                          stdout=subprocess.DEVNULL,
-                          stderr=subprocess.DEVNULL)
+        elif case in [
+                "2011-11-19-eeba0b5681-f330c8ab4e",
+                "2012-03-08-0169020e49-cdc512afb3"
+        ]:
+            cmd = [
+                'docker', 'cp', './bin/parent_checkout_php_c.sh',
+                f'{docker_id}:/experiment/parent_checkout.sh'
+            ]
+        elif case in [
+                "2012-03-12-7aefbf70a8-efc94f3115",
+                "2011-11-11-fcbfbea8d2-c1e510aea8",
+                "2011-11-08-c3e56a152c-3598185a74"
+        ]:
+            cmd = [
+                'docker', 'cp', './bin/parent_checkout_php_d.sh',
+                f'{docker_id}:/experiment/parent_checkout.sh'
+            ]
+    else:
+        raise Exception(f'{project}-{case} is not supported currently')
+    run_cmd_and_check(cmd,
+                      stdout=subprocess.DEVNULL,
+                      stderr=subprocess.DEVNULL)
 
     # run localizer
     if project == 'php':
