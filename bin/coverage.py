@@ -159,13 +159,15 @@ def extract_one_coverage(project, case, engine, is_faulty_func=False):
         ]
     if is_faulty_func:
         cmd += ['-faulty_func']
+    if args.gcov:
+        cmd += ['-gcov']
     run_cmd_and_check(cmd)
 
     # make output directories
     BIC_PATH.mkdir(parents=True, exist_ok=True)
     PARENT_PATH.mkdir(parents=True, exist_ok=True)
-    (PROJECT_HOME / 'data' / 'coverage_file' / project /
-     case).mkdir(exist_ok=True)
+    (PROJECT_HOME / 'data' / 'coverage_file' / project / case).mkdir(
+        parents=True, exist_ok=True)
 
     # copy output data
     if engine == 'unival':
