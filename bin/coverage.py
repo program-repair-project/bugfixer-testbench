@@ -250,10 +250,8 @@ def main():
                         '--faulty_func',
                         action='store_true',
                         default=False)
-    args = parser.parse_args('-g',
-                             '--gcov',
-                             action='store_true',
-                             default=False)
+    parser.add_argument('-g', '--gcov', action='store_true', default=False)
+    args = parser.parse_args()
     extract_coverage(args)
 
 
