@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
+from ast import arg
 import datetime
 import time
 import logging
@@ -40,6 +41,14 @@ def run_blazer(args, timestamp, project, case):
         cmd.append("-prune_cons")
     if args.faulty_func:
         cmd.append("-faulty_func")
+    if args.inter_sim:
+        oracles = benchmark.bic_location[project][case]
+        ora_path = os.path.join(OUTPUT_DIR, project, case)
+        with open(os.path.join(ora_path, "oracles.txt"), 'w') as of:
+            of.writelines(
+                map(lambda bic_loc: bic_loc[0] + ":" + str(bic_loc[1]) + '\n',
+                    oracles))
+        cmd.append("-inter_sim")
     logging.info("Cmd: {}".format(" ".join(cmd)))
     return subprocess.Popen(cmd, stdout=subprocess.DEVNULL)
 
@@ -88,6 +97,10 @@ def main():
                         default=False)
     parser.add_argument('-s',
                         '--soft_disj',
+                        action='store_true',
+                        default=False)
+    parser.add_argument('-i',
+                        '--inter_sim',
                         action='store_true',
                         default=False)
     parser.add_argument('--default_rule_prob', type=str, default="0.99")
