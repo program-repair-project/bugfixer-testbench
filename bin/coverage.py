@@ -19,7 +19,7 @@ logging.basicConfig(
     datefmt="%H:%M:%S")
 
 
-def extract_one_coverage(project, case, engine, is_faulty_func=False):
+def extract_one_coverage(args, project, case, engine, is_faulty_func=False):
 
     def run_cmd_and_check(cmd,
                           *,
@@ -48,7 +48,8 @@ def extract_one_coverage(project, case, engine, is_faulty_func=False):
             logging.info(
                 "There is no coverage file. Start extracting it first (using tarantula)."
             )
-            extract_one_coverage(project, case, 'tarantula')
+            extract_one_coverage(args, project, case, 'tarantula',
+                                 is_faulty_func)
 
     print("[*] Extracting coverage of : %s-%s" % (project, case))
 
