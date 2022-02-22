@@ -211,7 +211,46 @@ elif [[ $1 == "php" ]]; then
     yes | /bugfixer/smake/smake --init
     /bugfixer/smake/smake -j
     cp -r $target_loc $OUTDIR/parent/smake-out
-    
+
+elif [[ $1 == "grep" ]]; then
+    :'
+    target_loc="/experiment/src/sparrow/src/grep"
+    cd /experiment/src
+    make clean
+    cp -rf /experiment/src $OUTDIR/bic/src
+    yes | /bugfixer/smake/smake --init
+    /bugfixer/smake/smake -j
+    cp -r $target_loc $OUTDIR/bic/smake-out
+
+    cd /experiment
+    rm -rf src
+    mv parent src
+    cd src
+    ./configure "CFLAGS=--coverage -save-temps=obj -Wno-error" "CXXFLAGS=--coverage -save-temps=obj" "LDFLAGS=-lgcov --coverage"
+    cd ..
+
+    cd /experiment/src
+    make clean
+    cp -rf /experiment/src $OUTDIR/parent/src
+    yes | /bugfixer/smake/smake --init
+    /bugfixer/smake/smake -j
+    cp -r $target_loc $OUTDIR/parent/smake-out
+    '
+    wget https://github.com/prosyslab/pldi19-artifact/raw/master/benchmark/grep-2.19/grep-2.19.c -P $OUTDIR/bic/smake-out
+    wget https://github.com/prosyslab/pldi19-artifact/raw/master/benchmark/grep-2.18/grep-2.18.c -P $OUTDIR/parent/smake-out
+
+elif [[ $1 == "readelf" ]]; then
+    wget https://github.com/prosyslab/pldi19-artifact/raw/master/benchmark/tar-1.28/tar-1.28.c -P $OUTDIR/bic/smake-out
+    wget https://github.com/prosyslab/pldi19-artifact/raw/master/benchmark/tar-1.27/tar-1.27.c -P $OUTDIR/parent/smake-out
+
+elif [[ $1 == "readelf" ]]; then
+    wget https://github.com/prosyslab/pldi19-artifact/raw/master/benchmark/readelf-2.24/readelf-2.24.c -P $OUTDIR/bic/smake-out
+    wget https://github.com/prosyslab/pldi19-artifact/raw/master/benchmark/readelf-2.23.2/readelf-2.23.2.c -P $OUTDIR/parent/smake-out
+
+elif [[ $1 == "shntool" ]]; then
+    wget https://github.com/prosyslab/pldi19-artifact/raw/master/benchmark/shntool-3.0.5/shntool-3.0.5.c -P $OUTDIR/bic/smake-out
+    wget https://github.com/prosyslab/pldi19-artifact/raw/master/benchmark/shntool-3.0.4/shntool-3.0.4.c -P $OUTDIR/parent/smake-out
+
 else
   echo "Not supported"
 fi

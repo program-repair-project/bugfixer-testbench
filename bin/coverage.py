@@ -20,7 +20,6 @@ logging.basicConfig(
 
 
 def extract_one_coverage(args, project, case, engine, is_faulty_func=False):
-
     def run_cmd_and_check(cmd,
                           *,
                           capture_output=False,
@@ -141,17 +140,24 @@ def extract_one_coverage(args, project, case, engine, is_faulty_func=False):
                 'docker', 'cp', './bin/parent_checkout_php_d.sh',
                 f'{docker_id}:/experiment/parent_checkout.sh'
             ]
+            run_cmd_and_check(cmd,
+                              stdout=subprocess.DEVNULL,
+                              stderr=subprocess.DEVNULL)
+    elif project in ['grep', 'tar', 'readelf', 'shntool']:
+        pass
     else:
         raise Exception(f'{project}-{case} is not supported currently')
-    run_cmd_and_check(cmd,
-                      stdout=subprocess.DEVNULL,
-                      stderr=subprocess.DEVNULL)
 
     # run localizer
     if project == 'php':
         cmd = [
             'docker', 'exec', f'{docker_id}', '/bugfixer/localizer/main.exe',
             '-engine', engine, '-bic', '-no_seg', '.'
+        ]
+    elif project in ['grep', 'tar', 'readelf', 'shntool']:
+        cmd = [
+            'docker', 'exec', f'{docker_id}', '/bugfixer/localizer/main.exe',
+            '-engine', engine, '-bic', '-gcov', '.'
         ]
     else:
         cmd = [

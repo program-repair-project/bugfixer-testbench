@@ -216,6 +216,8 @@ def run_sparrow(works):
 
             if project in ["php"]:
                 target_files = get_target_files(project, case, version)
+            elif project in ["grep", "tar", "readelf", "shntool"]:
+                target_files = glob.glob(smake_outpath + '/*.c')
             else:
                 target_files = glob.glob(smake_outpath + '/*.i')
 

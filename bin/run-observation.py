@@ -19,7 +19,6 @@ logging.basicConfig(
 
 
 def run_one_observe(args, project, case, engine, is_faulty_func=False):
-
     def run_cmd_and_check(cmd,
                           *,
                           capture_output=False,
