@@ -49,6 +49,7 @@ def run_blazer(args, timestamp, project, case):
                 map(lambda bic_loc: bic_loc[0] + ":" + str(bic_loc[1]) + '\n',
                     oracles))
         cmd.append("-inter_sim")
+        cmd += ['-min_iters', args.min_iters, '-max_iters', args.max_iters]
     logging.info("Cmd: {}".format(" ".join(cmd)))
     return subprocess.Popen(cmd, stdout=subprocess.DEVNULL)
 
@@ -103,6 +104,8 @@ def main():
                         '--inter_sim',
                         action='store_true',
                         default=False)
+    parser.add_argument('--min_iters', type=str, default="500")
+    parser.add_argument('--max_iters', type=str, default="1000")
     parser.add_argument('--default_rule_prob', type=str, default="0.99")
     parser.add_argument('--default_rule_prob2', type=str, default="0.5")
     parser.add_argument('--default_edb_prob', type=str, default="0.99")
