@@ -1,0 +1,33 @@
+version: "1.0"
+
+blueprints:
+  - type: docker
+    tag: squareslab/manybugs:shntool
+    file: Dockerfile
+    context: .
+    depends-on: squareslab/manybugs:base
+
+  - type: docker
+    tag: squareslab/manybugs:shntool-3.0.4-3.0.5
+    file: Dockerfile.bug
+    depends-on: squareslab/manybugs:shntool
+    arguments:
+      bug_commit: 3.0.4
+      fix_commit: 3.0.5
+      
+bugs:
+  - name: manybugs:shntool:3.0.4-3.0.5
+    program: shntool 
+    dataset: manybugs
+    image: squareslab/manybugs:shntool-3.0.4-3.0.5
+    source-location: /experiment/src
+    languages:
+      - c
+    compiler:
+      time-limit: 300
+      type: configure-and-make
+    test-harness:
+      failing: 1
+      passing: 6 
+      time-limit: 25
+      type: genprog

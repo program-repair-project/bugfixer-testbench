@@ -1,0 +1,105 @@
+FROM squareslab/manybugs:php
+MAINTAINER Chris Timperley "christimperley@gmail.com"
+
+# Install dependencies
+ARG bison
+ENV BISON_VERSION "${bison}"
+ARG autoconf
+ENV AUTOCONF_VERSION "${autoconf}"
+RUN ./install-dependencies && \
+    rm /experiment/install-dependencies
+
+# Download the original archive for this scenario
+ARG scenario
+ENV SCENARIO_NAME ${scenario}
+ENV OLD_LOCATION /root/mountpoint-genprog/genprog-many-bugs/${SCENARIO_NAME}
+RUN cd /experiment && \
+    wget  -nv http://repairbenchmarks.cs.umass.edu/ManyBugs/scenarios/${SCENARIO_NAME}.tar.gz \
+          -O scenario.tar.gz && \
+    tar -xf scenario.tar.gz && \
+    mv ${SCENARIO_NAME} scenario
+
+# Tidy-up the associated artefacts
+RUN cd scenario && \
+    rm -rf  coverage* \
+            configuration-oracle \
+            local-root \
+            limit* \
+            php-tests-* \
+            *.cache \
+            *.debug.* \
+            *~ \
+            php.tar.gz && \
+    mv test.sh test.sh.orig && \
+    mv bug-failures bug-info && \
+    cp bugged-program.txt manifest.txt && \
+    mv *.lines bug-info && \
+    mv fix-failures bug-info && \
+    cd ../ && \
+    mv scenario/* /experiment && \
+    rm -rf scenario && \
+    sudo chown -R docker /experiment && \
+    grep -o -P '(?<=")[^"]+.phpt(?=")' php-run-tests.c > tests.all.txt && \
+    grep -o -P '\d+(?= &&)' test.sh.orig > tests.indices.txt && \
+    rm -f php-run-tests.c test.sh.orig && \
+    mv php src && \
+    cd src && \
+    make distclean &> /dev/null && \
+    rm -rf  configure config.nice autom4te.cache aclocal.m4 php5.spec missing mkinstalldirs
+
+# Build test suite archive
+# RUN cd src && \
+#     find . -name tests.tar.gz -delete && \
+#     ../php-tests-tar.sh && \
+#     find . -name tests.tar.gz -print | \
+#       tar -cvf all-tests.tar --files-from - && \
+#     mv all-tests.tar /experiment/all-tests.tar
+
+ARG bug_revision
+ENV BUG_REVISION "${bug_revision}"
+ARG fix_revision
+ENV FIX_REVISION "${fix_revision}"
+
+# Patch and configure
+ADD prepare.py /experiment/prepare.py
+RUN sudo chown docker /experiment/prepare.py && \
+    sudo chmod +x /experiment/prepare.py && \
+    /experiment/prepare.py && \
+    rm -f /experiment/prepare.py
+
+# Rebuild tests
+# RUN cd src && \
+#     mv ../all-tests.tar . && \
+#     find . -name tests.tar.gz -exec tar -xf {} \;
+
+# Generate a better test harness
+RUN ./tester.py build && \
+    rm tests.all.txt tests.indices.txt
+
+# Fix the GenProg configuration file
+RUN sed -i "s#compile.pl#compile.sh#"           configuration-default && \
+    sed -i "s#./test.sh#./tester.py run#"       configuration-default && \
+    sed -i "s#bugged-program.txt#manifest.txt#" configuration-default && \
+    sed -i "s#> /dev/null#\&> /dev/null#"        configuration-default && \
+    echo "--mt-cov" >> configuration-default
+
+# collect the tests from the ManyBugs archive
+RUN tar -xf scenario.tar.gz && \
+    mv php-bug* scenario && \
+    cd scenario/php && \
+    find . -name tests.tar.gz -delete && \
+    find . -name tests -type d | tar -czf all-tests.tar.gz --files-from - && \
+    cd ../.. && \
+    mv scenario/php/all-tests.tar.gz src/all-tests.tar.gz && \
+    rm -rf scenario
+
+# unpack tests
+RUN cd src && \
+    find . -name tests -type d | rm -rf - && \
+    tar -xf all-tests.tar.gz && \
+    rm -f all-tests.tar.gz
+
+# build
+RUN cd src \
+ && make clean \
+ && bear make -j4

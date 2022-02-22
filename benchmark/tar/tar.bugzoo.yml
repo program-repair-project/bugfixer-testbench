@@ -1,0 +1,33 @@
+version: "1.0"
+
+blueprints:
+  - type: docker
+    tag: squareslab/manybugs:tar
+    file: Dockerfile
+    context: .
+    depends-on: squareslab/manybugs:base
+
+  - type: docker
+    tag: squareslab/manybugs:tar-1.27-1.28
+    file: Dockerfile.bug
+    depends-on: squareslab/manybugs:tar
+    arguments:
+      bug_commit: 1.27
+      fix_commit: 1.28
+      
+bugs:
+  - name: manybugs:tar:1.27-1.28
+    program: tar
+    dataset: manybugs
+    image: squareslab/manybugs:tar-1.27-1.28
+    source-location: /experiment/src
+    languages:
+      - c
+    compiler:
+      time-limit: 300
+      type: configure-and-make
+    test-harness:
+      failing: 1
+      passing: 1
+      time-limit: 25
+      type: genprog

@@ -1,0 +1,33 @@
+version: "1.0"
+
+blueprints:
+  - type: docker
+    tag: squareslab/manybugs:readelf
+    file: Dockerfile
+    context: .
+    depends-on: squareslab/manybugs:base
+
+  - type: docker
+    tag: squareslab/manybugs:readelf-2.23.2-2.24
+    file: Dockerfile.bug
+    depends-on: squareslab/manybugs:readelf
+    arguments:
+      bug_commit: 2.23.2
+      fix_commit: 2.24
+      
+bugs:
+  - name: manybugs:readelf:2.23.2-2.24
+    program: readelf 
+    dataset: manybugs
+    image: squareslab/manybugs:readelf-2.23.2-2.24
+    source-location: /experiment/src
+    languages:
+      - c
+    compiler:
+      time-limit: 300
+      type: configure-and-make
+    test-harness:
+      failing: 1
+      passing: 3
+      time-limit: 25
+      type: genprog

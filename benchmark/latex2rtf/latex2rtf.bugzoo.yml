@@ -1,0 +1,33 @@
+version: "1.0"
+
+blueprints:
+  - type: docker
+    tag: squareslab/manybugs:latex2rtf
+    file: Dockerfile
+    context: .
+    depends-on: squareslab/manybugs:base
+
+  - type: docker
+    tag: squareslab/manybugs:latex2rtf-2.1.0-2.1.1
+    file: Dockerfile.bug
+    depends-on: squareslab/manybugs:latex2rtf
+    arguments:
+      bug_commit: 2.1.0
+      fix_commit: 2.1.1
+      
+bugs:
+  - name: manybugs:latex2rtf:2.1.0-2.1.1
+    program: latex2rtf 
+    dataset: manybugs
+    image: squareslab/manybugs:latex2rtf-2.1.0-2.1.1
+    source-location: /experiment/src
+    languages:
+      - c
+    compiler:
+      time-limit: 300
+      type: configure-and-make
+    test-harness:
+      failing: 1
+      passing: 43 
+      time-limit: 25
+      type: genprog

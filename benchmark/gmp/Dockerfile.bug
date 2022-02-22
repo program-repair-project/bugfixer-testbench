@@ -1,0 +1,72 @@
+FROM squareslab/manybugs:gmp
+
+ARG bug_commit
+ARG fix_commit
+ENV BUG_COMMIT ${bug_commit}
+ENV FIX_COMMIT ${fix_commit}
+ENV SCENARIO_NAME gmp-bug-${BUG_COMMIT}-${FIX_COMMIT}
+ENV OLD_LOCATION /root/genprog-many-bugs/${SCENARIO_NAME}
+
+RUN cd /experiment && \
+    wget  -nv http://repairbenchmarks.cs.umass.edu/ManyBugs/scenarios/${SCENARIO_NAME}.tar.gz \
+          -O scenario.tar.gz && \
+    tar -xf scenario.tar.gz && \
+    mv ${SCENARIO_NAME} scenario && \
+    rm scenario.tar.gz && \
+    cd scenario && \
+    rm -rf  coverage* \
+            configuration-oracle \
+            local-root \
+            test_paths.txt \
+            limit* \
+            *.cache \
+            *.debug.* \
+            sanity \
+            compile.pl \
+            *~ \
+            test \
+            reconfigure \
+            tests \
+            fixed-program.txt && \
+    mv *-failures bug-info && \
+    mv *.lines bug-info && \
+    mv bugged-program.txt manifest.txt && \
+    mv gmp src && \
+    cd ../ && \
+    mv scenario/* /experiment && \
+    rm -rf scenario && \
+    cd /experiment && \
+    rm -rf tests && \
+    sudo chown -R docker /experiment
+
+# Remove all references to tests/mpbsd/Makefile from configure.
+# Fixes: "config.status: error: cannot find input file: `tests/mpbsd/Makefile.in'"
+# Credit to Eduardo Souza (github.com/eduardodx)
+RUN cd src &&  \
+  grep -v '"tests/mpbsd/Makefile") ' configure | \
+  sed "s#tests/mpbsd/Makefile ##g" | \
+  sponge configure
+
+# fix the source code
+RUN cd /experiment/src && \
+    make distclean && \
+    hg revert -r${BUG_COMMIT} $(cat /experiment/manifest.txt) && \
+    ./configure && \
+    if [ "${BUG_COMMIT}" -eq "14166" ]; then autoreconf --force --install; fi
+
+# configure and compile
+RUN cd src && \
+    ./configure && \
+    make
+
+# fix the test harness
+RUN sed -i "s#${OLD_LOCATION}#/experiment#g" test.sh && \
+    sed -i "s#cd gmp#cd src#g" test.sh && \
+    sed -i "s#/experiment/limit#timeout \${time_limit}#g" test.sh && \
+    sed -i "s#/usr/bin/perl#perl#g" test.sh && \
+    sed -i 's#lt-\.\*#lt-\.\* \&\> /dev/null#g' test.sh && \
+    chmod +x gmp-run-tests.pl
+
+# Fix the GenProg configuration file
+RUN sed -i "s#bugged-program.txt#manifest.txt#" configuration-default && \
+    sed -i "s#perl compile.pl#./compile.sh#"    configuration-default

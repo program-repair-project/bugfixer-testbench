@@ -1,0 +1,33 @@
+version: "1.0"
+
+blueprints:
+  - type: docker
+    tag: squareslab/manybugs:grep
+    file: Dockerfile
+    context: .
+    depends-on: squareslab/manybugs:base
+
+  - type: docker
+    tag: squareslab/manybugs:grep-2.18-2.19
+    file: Dockerfile.bug
+    depends-on: squareslab/manybugs:grep
+    arguments:
+      bug_commit: 2.18
+      fix_commit: 2.19
+      
+bugs:
+  - name: manybugs:grep:2.18-2.19
+    program: grep 
+    dataset: manybugs
+    image: squareslab/manybugs:grep-2.18-2.19
+    source-location: /experiment/src
+    languages:
+      - c
+    compiler:
+      time-limit: 300
+      type: configure-and-make
+    test-harness:
+      failing: 1
+      passing: 43 
+      time-limit: 25
+      type: genprog

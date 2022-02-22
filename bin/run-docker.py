@@ -14,7 +14,7 @@ LOCALIZER_HOME = os.path.join(PROJECT_HOME, "bug-localizer")
 LOCALIZER_BIN_DIR = os.path.join(LOCALIZER_HOME, "_build/default/src")
 SYNTHESIZER_HOME = os.path.join(PROJECT_HOME, "patch-synthesizer")
 SYNTHESIZER_BIN_DIR = os.path.join(SYNTHESIZER_HOME, "_build/default/src")
-MANYBUGS_HOME = os.path.join(PROJECT_HOME, "ManyBugs")
+MANYBUGS_HOME = os.path.join(PROJECT_HOME, "benchmark")
 SPARROW_HOME = os.path.join(PROJECT_HOME, "sparrow")
 SMAKE_HOME = os.path.join(PROJECT_HOME, "smake")
 

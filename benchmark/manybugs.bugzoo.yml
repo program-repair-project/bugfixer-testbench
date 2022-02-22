@@ -1,0 +1,11 @@
+version: "1.0"
+
+blueprints:
+  - type: docker
+    tag: squareslab/manybugs:base
+    file: Dockerfile
+    context: .
+  - type: docker
+    tag: squareslab/manybugs:gzip
+    file: Dockerfile.gzip
+    depends-on: squareslab/manybugs:base

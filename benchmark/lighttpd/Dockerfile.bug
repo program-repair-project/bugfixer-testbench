@@ -1,0 +1,77 @@
+FROM squareslab/manybugs:lighttpd
+
+ARG bug_commit
+ARG fix_commit
+ENV BUG_COMMIT ${bug_commit}
+ENV FIX_COMMIT ${fix_commit}
+ENV SCENARIO_NAME lighttpd-bug-${BUG_COMMIT}-${FIX_COMMIT}
+ENV OLD_LOCATION /root/mountpoint-genprog/genprog-many-bugs/${SCENARIO_NAME}
+
+RUN cd /experiment && \
+    wget  -nv http://repairbenchmarks.cs.umass.edu/ManyBugs/scenarios/${SCENARIO_NAME}.tar.gz \
+          -O scenario.tar.gz && \
+    tar -xf scenario.tar.gz && \
+    mv ${SCENARIO_NAME} scenario && \
+    rm scenario.tar.gz && \
+    cd scenario && \
+    rm -rf  coverage* \
+            configuration-oracle \
+            local-root \
+            limit* \
+            *.cache \
+            *.debug.* \
+            sanity \
+            compile.pl \
+            *~ \
+            test \
+            reconfigure \
+            preprocessed \
+            fixed-program.txt && \
+    mv bug-failures bug-info && \
+    mv bugged-program.txt manifest.txt && \
+    mv *.lines bug-info && \
+    mv fix-failures bug-info && \
+    mv lighttpd src && \
+    cd ../ && \
+    mv scenario/* /experiment && \
+    rm -rf scenario && \
+    cd /experiment && \
+    rm -rf tests && \
+    cd /experiment/src && \
+      make distclean && \
+      svn upgrade && \
+      svn revert $(cat /experiment/manifest.txt) && \
+    sudo chown -R docker /experiment
+
+# fix the test harness and the configuration script
+RUN sed -i "s#${OLD_LOCATION}#/experiment#g" test.sh && \
+    sed -i "s#cd gmp#cd src#g" test.sh && \
+    sed -i "s#/experiment/limit#timeout 5#g" test.sh && \
+    sed -i "s#/usr/bin/perl#perl#g" test.sh && \
+    sed -i 's#lt-\.\*#lt-\.\* \&\> /dev/null#g' test.sh && \
+    sed -i 's#cd lighttpd/tests#cd src/tests#g' test.sh && \
+    sed -i 's#cd src/tests#pushd /experiment/src/tests#g' test.sh && \
+    sed -i 's#cd ../../#popd#g' test.sh
+
+# fix an obnoxious bug in tests/core-request.t
+RUN sed -i 's#image.JPG#image.jpg#g' src/tests/core-request.t
+
+# fix broken symlinks
+RUN cd src/tests/tmp/lighttpd/servers/www.example.org/pages && \
+    rm symlinked index.xhtml && \
+    ln -s expire symlinked && \
+    ln -s index.html index.xhtml
+
+# fix broken test file
+ADD mod-cgi.t /experiment/src/tests/mod-cgi.t
+
+# compile program
+RUN ./preprocess --cfg "--with-ldap --with-bzip2 --with-openssl --with-gdbm --with-memcache --with-webdav-props --with-webdav-locks" && \
+    cd src && \
+    make
+
+# Fix the GenProg configuration file
+RUN sed -i "s#bugged-program.txt#manifest.txt#" configuration-default && \
+    sed -i "s#perl compile.pl#./compile.sh#"    configuration-default && \
+    sed -i "s#> /dev/null#\&> /dev/null#"        configuration-default && \
+    echo "--mt-cov" >> configuration-default
