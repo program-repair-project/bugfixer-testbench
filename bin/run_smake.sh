@@ -239,7 +239,7 @@ elif [[ $1 == "grep" ]]; then
     wget https://github.com/prosyslab/pldi19-artifact/raw/master/benchmark/grep-2.19/grep-2.19.c -P $OUTDIR/bic/smake-out
     wget https://github.com/prosyslab/pldi19-artifact/raw/master/benchmark/grep-2.18/grep-2.18.c -P $OUTDIR/parent/smake-out
 
-elif [[ $1 == "readelf" ]]; then
+elif [[ $1 == "tar" ]]; then
     wget https://github.com/prosyslab/pldi19-artifact/raw/master/benchmark/tar-1.28/tar-1.28.c -P $OUTDIR/bic/smake-out
     wget https://github.com/prosyslab/pldi19-artifact/raw/master/benchmark/tar-1.27/tar-1.27.c -P $OUTDIR/parent/smake-out
 
@@ -250,6 +250,10 @@ elif [[ $1 == "readelf" ]]; then
 elif [[ $1 == "shntool" ]]; then
     wget https://github.com/prosyslab/pldi19-artifact/raw/master/benchmark/shntool-3.0.5/shntool-3.0.5.c -P $OUTDIR/bic/smake-out
     wget https://github.com/prosyslab/pldi19-artifact/raw/master/benchmark/shntool-3.0.4/shntool-3.0.4.c -P $OUTDIR/parent/smake-out
+
+elif [[ $1 == "sed" ]]; then
+    wget https://github.com/prosyslab/pldi19-artifact/raw/master/benchmark/sed-4.3/sed-4.3.c -P $OUTDIR/bic/smake-out
+    wget https://github.com/prosyslab/pldi19-artifact/raw/master/benchmark/sed-4.2.2/sed-4.2.2.c -P $OUTDIR/parent/smake-out
 
 else
   echo "Not supported"

@@ -143,7 +143,7 @@ def extract_one_coverage(args, project, case, engine, is_faulty_func=False):
             run_cmd_and_check(cmd,
                               stdout=subprocess.DEVNULL,
                               stderr=subprocess.DEVNULL)
-    elif project in ['grep', 'tar', 'readelf', 'shntool']:
+    elif project in ['grep', 'tar', 'readelf', 'shntool', 'sed']:
         pass
     else:
         raise Exception(f'{project}-{case} is not supported currently')
@@ -154,7 +154,7 @@ def extract_one_coverage(args, project, case, engine, is_faulty_func=False):
             'docker', 'exec', f'{docker_id}', '/bugfixer/localizer/main.exe',
             '-engine', engine, '-bic', '-no_seg', '.'
         ]
-    elif project in ['grep', 'tar', 'readelf', 'shntool']:
+    elif project in ['grep', 'tar', 'readelf', 'shntool', 'sed']:
         cmd = [
             'docker', 'exec', f'{docker_id}', '/bugfixer/localizer/main.exe',
             '-engine', engine, '-bic', '-gcov', '.'
