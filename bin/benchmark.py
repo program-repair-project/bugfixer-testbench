@@ -70,6 +70,8 @@ bic_location = {
                                              ("spl_directory.c", 154)],
         "2011-04-07-d3274b7f20-77ed819430": [("spl_array.c", 514)],
         "2011-10-31-c4eb5f2387-2e5d5e5ac6": [("zend_API.c", 1070)],
+        "2011-11-08-0ac9b9b0ae-cacf363957": [("pdo_dbh.c", 1313),
+                                             ("pdo_dbh.c", 1315)],
         "2011-11-08-c3e56a152c-3598185a74":
         [("zend_builtin_functions.c", 848)],
         "2011-11-11-fcbfbea8d2-c1e510aea8": [("spl_directory.c", 1057)],
