@@ -23,6 +23,12 @@ logging.basicConfig(level=logging.INFO, \
 
 
 def run_blazer(args, timestamp, project, case):
+    oracles = benchmark.bic_location[project][case]
+    ora_path = os.path.join(OUTPUT_DIR, project, case)
+    with open(os.path.join(ora_path, "oracles.txt"), 'w') as of:
+        of.writelines(
+            map(lambda bic_loc: bic_loc[0] + ":" + str(bic_loc[1]) + '\n',
+                oracles))
     cmd = [
         BLAZER_BIN, '-timestamp', timestamp, '-engine', args.engine,
         '-default_rule_prob', args.default_rule_prob, '-default_rule_prob2',
@@ -42,12 +48,6 @@ def run_blazer(args, timestamp, project, case):
     if args.faulty_func:
         cmd.append("-faulty_func")
     if args.inter_sim:
-        oracles = benchmark.bic_location[project][case]
-        ora_path = os.path.join(OUTPUT_DIR, project, case)
-        with open(os.path.join(ora_path, "oracles.txt"), 'w') as of:
-            of.writelines(
-                map(lambda bic_loc: bic_loc[0] + ":" + str(bic_loc[1]) + '\n',
-                    oracles))
         cmd.append("-inter_sim")
         cmd += ['-min_iters', args.min_iters, '-max_iters', args.max_iters]
     logging.info("Cmd: {}".format(" ".join(cmd)))
