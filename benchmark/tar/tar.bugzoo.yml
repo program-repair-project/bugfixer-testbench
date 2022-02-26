@@ -28,6 +28,6 @@ bugs:
       type: configure-and-make
     test-harness:
       failing: 1
-      passing: 1
+      passing: 45
       time-limit: 25
       type: genprog
