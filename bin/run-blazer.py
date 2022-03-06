@@ -85,12 +85,14 @@ def main():
     parser = argparse.ArgumentParser(description='Run Blazer')
     parser.add_argument('-p', '--project', type=str, default="all")
     parser.add_argument('-c', '--case', type=str)
-    parser.add_argument(
-        '-e',
-        '--engine',
-        type=str,
-        choices=['tarantula', 'ochiai', 'jaccard', 'prophet', 'unival', 'all'],
-        default='tarantula')
+    parser.add_argument('-e',
+                        '--engine',
+                        type=str,
+                        choices=[
+                            'none', 'tarantula', 'ochiai', 'jaccard',
+                            'prophet', 'unival', 'all'
+                        ],
+                        default='tarantula')
     parser.add_argument('-g', '--debug', action='store_true', default=False)
     parser.add_argument('-f',
                         '--faulty_func',
