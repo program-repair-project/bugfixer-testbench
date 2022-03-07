@@ -253,5 +253,28 @@ sparrow_custom_option = {
             "-max_pre_iter",
             "2",
         ]
+    },
+    "grep": {
+        "2.18-2.19": ["-unsound_alloc", "-inline", "alloc"]
+    },
+    "readelf": {
+        "2.23.2-2.24": ["-unsound_alloc", "-inline", "alloc"]
+    },
+    "shntool": {
+        "3.0.4-3.0.5": ["-unsound_alloc"]
+    },
+    "sed": {
+        "4.2.2-4.3": [
+            "-unsound_alloc", "-inline", "alloc", "-filter_file", "obstack.c",
+            "-filter_node", "match_regex-64558", "-filter_node", "do_subst-*",
+            "-filter_function", "str_append_modified", "-filter_function",
+            "compile_regex_1"
+        ]
+    },
+    "tar": {
+        "1.27-1.28": [
+            "-unsound_alloc", "-inline", "alloc", "-filter_extern",
+            "-unsound_skip_file", "parse-datetime"
+        ]
     }
 }
