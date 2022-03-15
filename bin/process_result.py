@@ -24,6 +24,7 @@ def get_rank_list(project, case, timestamp, result_file):
         rank = int(rank)
         score = float(score)
         rank_list.append((rank, score, ground))
+    file.close()
     return rank_list
 
 
