@@ -57,7 +57,7 @@ def run_blazer(args, timestamp, project, case):
 def run(args, timestamp):
     timestamp = datetime.datetime.now().strftime(
         '%Y%m%d-%H:%M:%S') if timestamp is None else timestamp
-    print("Timestamp: " + timestamp)
+    print(timestamp)
     logging.info("Timestamp: " + timestamp)
     child_processes = []
     if args.project == "all":
