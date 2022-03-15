@@ -93,7 +93,7 @@ def print_result(result_list):
     #print(result)
     new_result = {}
     print(
-        "Case\tInit_Rank\tInit_Tie\tInit_Total\tScore_Rank\tScore_Tie\tScore_Total"
+        "Project\tCase\tInit_Rank\tInit_Tie\tInit_Total\tScore_Rank\tScore_Tie\tScore_Total"
     )
     for result in result_list:
         for project in result:
@@ -106,7 +106,7 @@ def print_result(result_list):
                     map(str, result[project][case])))
     for project in new_result:
         for case in new_result[project]:
-            print(case + "\t" + "\t".join(new_result[project][case]))
+            print(project + "\t" + case + "\t" + "\t".join(new_result[project][case]))
 
 
 def main():
