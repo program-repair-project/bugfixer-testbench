@@ -117,7 +117,7 @@ def main():
     parser.add_argument('-c', '--case', type=str)
     parser.add_argument('-e', '--engine', required=True, type=str)
     args = parser.parse_args()
-    result = get_result(args, f'coverage_{args.engine}.txt')
+    result = get_result(args, f'observation_{args.engine}.txt')
     print_result([result])
 
 
