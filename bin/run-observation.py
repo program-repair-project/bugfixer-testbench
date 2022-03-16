@@ -122,7 +122,7 @@ def run_one_observe(args, project, case, engine, is_faulty_func=False):
                                 map(
                                     lambda x: (x[0], x[1], x[2], x[3], (
                                         (x[4] - min) / (max - min)) * 0.9
-                                               if x != -1 else 1.0), result))
+                                               if x[4] != -1 else 1.0), result))
                             result.sort(key=lambda x: x[4], reverse=True)
                             for f, l, pt, ft, s in result:
                                 f_cov.write(f'{f}:{l},{pt},{ft},{s:.6f}\n')
