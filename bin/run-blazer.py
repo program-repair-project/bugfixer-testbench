@@ -90,7 +90,7 @@ def main():
                         type=str,
                         choices=[
                             'none', 'tarantula', 'ochiai', 'jaccard',
-                            'prophet', 'unival', 'all'
+                            'prophet', 'unival', 'dstar', 'all'
                         ],
                         default='tarantula')
     parser.add_argument('-g', '--debug', action='store_true', default=False)
