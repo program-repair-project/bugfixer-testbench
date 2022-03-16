@@ -49,7 +49,7 @@ def get_same_rank(rank_list, answer_score):
 
 
 def calculate_info(rank, start, end):
-    return int((start+end)/2), end - start + 1, len(rank)
+    return end, end - start + 1, len(rank)
 
 
 def get_one_result(project, case, timestamp, result_file):
@@ -106,7 +106,8 @@ def print_result(result_list):
                     map(str, result[project][case])))
     for project in new_result:
         for case in new_result[project]:
-            print(project + "\t" + case + "\t" + "\t".join(new_result[project][case]))
+            print(project + "\t" + case + "\t" +
+                  "\t".join(new_result[project][case]))
 
 
 def main():

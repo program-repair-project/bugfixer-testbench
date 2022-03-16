@@ -50,7 +50,7 @@ def get_same_rank(rank_list, answer_score):
 
 
 def calculate_info(rank, start, end):
-    return int((start + end) / 2), end - start + 1, len(rank)
+    return end, end - start + 1, len(rank)
 
 
 def get_one_result(project, case, result_file):
