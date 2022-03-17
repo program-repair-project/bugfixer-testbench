@@ -113,7 +113,7 @@ def main():
     parser.add_argument('--default_edb_prob', type=str, default="0.99")
     parser.add_argument('--default_obsold_prob', type=str, default="0.01")
     parser.add_argument('--default_nc_obsold_prob', type=str, default="0.5")
-    parser.add_argument('--eps', type=str, default="0.01")
+    parser.add_argument('--eps', type=str, default="0.1")
     parser.add_argument('--prune_cons', action='store_true')
     parser.add_argument('--timestamp', type=str)
     args = parser.parse_args()
