@@ -20,6 +20,7 @@ for engine in "${engine_array[@]}"; do
                     "$PROJECT_HOME"/bin/process_result.py -p "$benchmark" -t "$timestamp"
                     echo ""
                 } >>"$RESULT_FILE"
+                pkill bingo
                 continue
             elif [ "$benchmark" = "php" ] || [ "$benchmark" = "grep" ] || [ "$benchmark" = "readelf" ] || [ "$benchmark" = "sed" ] || [ "$benchmark" = "tar" ]; then
                 continue
@@ -34,6 +35,7 @@ for engine in "${engine_array[@]}"; do
                         "$PROJECT_HOME"/bin/process_result.py -p "$benchmark" -t "$timestamp"
                         echo ""
                     } >>"$RESULT_FILE"
+                    pkill bingo
                 done
             done
         else
@@ -43,6 +45,7 @@ for engine in "${engine_array[@]}"; do
                 "$PROJECT_HOME"/bin/process_result.py -p "$benchmark" -t "$timestamp"
                 echo ""
             } >>"$RESULT_FILE"
+            pkill bingo
         fi
     done
 done
