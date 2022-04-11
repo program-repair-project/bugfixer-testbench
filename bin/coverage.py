@@ -141,13 +141,16 @@ def extract_one_coverage(args, project, case, engine, is_faulty_func=False):
                 'docker', 'cp', './bin/parent_checkout_php_d.sh',
                 f'{docker_id}:/experiment/parent_checkout.sh'
             ]
+    else:
+        cmd = [
+            'docker', 'cp', './bin/parent_checkout_basic.sh',
+            f'{docker_id}:/experiment/parent_checkout.sh'
+        ]
     if cmd:
         run_cmd_and_check(cmd,
                           stdout=subprocess.DEVNULL,
                           stderr=subprocess.DEVNULL)
-    if project not in [
-            'gmp', 'libtiff', 'php', 'grep', 'tar', 'readelf', 'shntool', 'sed'
-    ]:
+    if project not in benchmark or case not in benchmark[project]:
         raise Exception(f'{project}-{case} is not supported currently')
 
     # run localizer
