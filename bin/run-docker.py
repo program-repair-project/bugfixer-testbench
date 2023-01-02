@@ -74,6 +74,15 @@ def run_docker(args, program, bug_id):
         cmd.append('--rm')
     if args.detached:
         cmd.append('-d')
+    if args.name:
+        cmd.append('--name')
+        cmd.append(args.name)
+    if args.cpuset_cpus:
+        cmd.append('--cpuset-cpus')
+        cmd.append(args.cpuset_cpus)
+    if args.outdir:
+        cmd.append('-v')
+        cmd.append("{}:{}".format(args.outdir, "/experiment/output"))
 
     if args.bic:
         cmd += [
@@ -94,6 +103,9 @@ def main():
     parser.add_argument('--timestamp', type=str)
     parser.add_argument('--bic', action='store_true')
     parser.add_argument('target', type=str)
+    parser.add_argument('--name', type=str)
+    parser.add_argument('--outdir', type=str)
+    parser.add_argument('--cpuset-cpus', type=str)
     args = parser.parse_args()
     initialize(args)
     program = args.target.split('-')[0]
