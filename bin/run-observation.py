@@ -184,7 +184,7 @@ def run_observe(args):
                 work_list.append((args, project, case, engine, is_faulty_func, no_seg))
                 # run_one_observe(args, project, case, engine, is_faulty_func)
     # print(len(work_list))
-    num_process = 15
+    num_process = 30
     split_work_list=[work_list[y-num_process:y] for y in range(num_process, len(work_list)+num_process,num_process)]
     for wl in tqdm(split_work_list):
         run_info = list(map(lambda x: (x[1][0], x[1][1], x[1][2], x[1][3], x[1][4], x[1][5], x[0]), enumerate(wl)))
@@ -210,6 +210,7 @@ def main():
                         default=False)
     parser.add_argument('-g', '--gcov', action='store_true', default=False)
     parser.add_argument('--no_seg', action='store_true', default=False)
+    parser.add_argument('--mmap', action='store_true', default=False)
     args = parser.parse_args()
     run_observe(args)
 

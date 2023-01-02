@@ -56,7 +56,7 @@ def extract_one_coverage(args, project, case, engine, is_faulty_func=False, cpu_
     # run docker
     
     cmd = [f'{RUN_DOCKER_SCRIPT}', f'{project}-{case}', '-d', '--rm',  '--name', f'{project}-{case}-coverage']
-    cmd = cmd + ['--cpuset-cpus'] + [f'{cpu_count*4}-{cpu_count*4+3}'] if cpu_count != None else cmd
+    cmd = cmd + ['--cpuset-cpus'] + [f'{cpu_count*2}-{cpu_count*2+1}'] if cpu_count != None else cmd
     run_cmd_and_check(cmd,
                       stdout=subprocess.DEVNULL,
                       stderr=subprocess.DEVNULL)
@@ -180,6 +180,8 @@ def extract_one_coverage(args, project, case, engine, is_faulty_func=False, cpu_
         cmd += ['-gcov']
     if args.no_seg:
         cmd += ['-no_seg']
+    if args.mmap:
+        cmd += ['-mmap']
     run_cmd_and_check(cmd)
 
     # make output directories
@@ -268,6 +270,7 @@ def main():
                         default=False)
     parser.add_argument('-g', '--gcov', action='store_true', default=False)
     parser.add_argument('--no_seg', action='store_true', default=False)
+    parser.add_argument('--mmap', action='store_true', default=False)
     parser.add_argument('--cpu_count', type=int)
     args = parser.parse_args()
     extract_coverage(args)
