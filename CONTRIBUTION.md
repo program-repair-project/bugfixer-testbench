@@ -7,3 +7,5 @@ Tae Eun Kim, KAIST
 Jaeho Kim, KAIST
 
 Seungwan Kwon, KAIST
+
+Sujin Jang, KAIST
