@@ -11,3 +11,5 @@ Seungwan Kwon, KAIST
 Sujin Jang, KAIST
 
 Yeonhee Ryou, KAIST
+
+Wooseok Kang, KAIST
